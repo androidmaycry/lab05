@@ -20,6 +20,9 @@ public class EditPassword extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_password);
 
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("Updating password...");
+
         findViewById(R.id.text_psw_alert).setVisibility(View.INVISIBLE);
         findViewById(R.id.error_psw).setVisibility(View.INVISIBLE);
 
@@ -27,8 +30,6 @@ public class EditPassword extends AppCompatActivity {
             findViewById(R.id.text_psw_alert).setVisibility(View.INVISIBLE);
             findViewById(R.id.error_psw).setVisibility(View.INVISIBLE);
 
-            final ProgressDialog progressDialog = new ProgressDialog(this);
-            progressDialog.setTitle("Updating password...");
             progressDialog.show();
 
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
