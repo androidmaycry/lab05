@@ -9,7 +9,6 @@ import android.database.Cursor;
 import android.icu.text.SimpleDateFormat;
 import android.net.Uri;
 import android.os.Environment;
-import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -24,7 +23,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.NumberPicker;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -44,9 +42,6 @@ import com.google.firebase.storage.StorageReference;
 import com.mad.mylibrary.Restaurateur;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;

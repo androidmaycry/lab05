@@ -1,7 +1,6 @@
 package com.mad.appetit;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -30,7 +29,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
-import java.util.stream.DoubleStream;
 
 import static com.mad.mylibrary.SharedClass.ACCEPTED_ORDER_PATH;
 import static com.mad.mylibrary.SharedClass.ORDER_ID;
