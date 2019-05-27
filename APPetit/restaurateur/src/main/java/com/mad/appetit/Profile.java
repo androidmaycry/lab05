@@ -37,7 +37,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import java.io.InputStream;
 import java.util.Objects;
 
 /**
@@ -84,7 +83,6 @@ public class Profile extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
                     Restaurateur restaurateur = new Restaurateur();
-                    InputStream inputStream = null;
 
                     for(DataSnapshot d : dataSnapshot.getChildren()) {
                         if(d.getKey().equals("info")){
@@ -133,7 +131,7 @@ public class Profile extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_main, menu);
+        inflater.inflate(R.menu.menu_profile, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -142,19 +140,25 @@ public class Profile extends Fragment {
         int id = item.getItemId();
 
         switch (id){
-            case R.id.add:
-                Intent i = new Intent(getContext(), EditProfile.class);
+            case R.id.edit_profile:
+                Intent editProfile = new Intent(getContext(), EditProfile.class);
 
-                i.putExtra(Name, name);
-                i.putExtra(Description, descr);
-                i.putExtra(Address, addr);
-                i.putExtra(Mail, mail);
-                i.putExtra(Phone, phone);
-                i.putExtra(Photo, photoUri);
-                i.putExtra(Time, time);
+                editProfile.putExtra(Name, name);
+                editProfile.putExtra(Description, descr);
+                editProfile.putExtra(Address, addr);
+                editProfile.putExtra(Mail, mail);
+                editProfile.putExtra(Phone, phone);
+                editProfile.putExtra(Photo, photoUri);
+                editProfile.putExtra(Time, time);
 
-                startActivity(i);
+                startActivity(editProfile);
                 return true;
+
+            case R.id.edit_password:
+                Intent editPsw = new Intent(getContext(), EditPassword.class);
+                startActivity(editPsw);
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }

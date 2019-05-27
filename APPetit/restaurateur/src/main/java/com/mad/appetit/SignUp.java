@@ -143,7 +143,7 @@ public class SignUp extends AppCompatActivity {
             return false;
         }
 
-        if(psw.trim().length() == 0 || psw.length() < 6){
+        if(psw.trim().length() < 6){
             errMsg = "Password should be at least 6 characters";
             return false;
         }
