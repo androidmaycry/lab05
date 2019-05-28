@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
 
         FacebookSdk.sdkInitialize(getApplicationContext());
-        AppEventsLogger.activateApp(this);
+        //AppEventsLogger.activateApp(getApplicationContext());
 
         // Google
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
