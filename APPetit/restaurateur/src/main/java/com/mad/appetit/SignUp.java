@@ -63,17 +63,12 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class SignUp extends AppCompatActivity {
-    private String mail, psw, name, addr, descr, phone;
-    private String errMsg = " ";
-    private String currentPhotoPath = null;
+    private String mail, psw, name, addr, descr, phone, errMsg = "", currentPhotoPath = null;
     private String openingTime, closingTime;
 
-    private Button openingTimeButton;
-    private Button closingTimeButton;
-    private Button address;
+    private Button openingTimeButton, closingTimeButton, address;
 
-    private double latitude;
-    private double longitude;
+    private double latitude, longitude;
 
     private boolean camera_open = false;
     private boolean timeOpen_open = false;
@@ -94,8 +89,7 @@ public class SignUp extends AppCompatActivity {
         FirebaseAuth auth = FirebaseAuth.getInstance();
 
         address = findViewById(R.id.button_address);
-        address.setOnClickListener(l-> {
-
+        address.setOnClickListener(l -> {
             Intent intent = new Autocomplete.IntentBuilder(
                     AutocompleteActivityMode.FULLSCREEN, fields)
                     .build(this);

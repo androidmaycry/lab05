@@ -1,7 +1,5 @@
 package com.mad.mylibrary;
 
-import java.io.File;
-
 public final class SharedClass {
     /**
      * Key for onSaveInstanceState() and onRestoreInstanceState()
@@ -32,6 +30,8 @@ public final class SharedClass {
      * Permission values
      */
     public static final int PERMISSION_GALLERY_REQUEST = 1;
+    public static final int GOOGLE_SIGIN = 101;
+    public static final int SIGNUP = 102;
 
     /**
      * Firebase paths
