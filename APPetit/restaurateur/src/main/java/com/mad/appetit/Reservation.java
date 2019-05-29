@@ -26,6 +26,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
@@ -36,26 +42,62 @@ import com.google.firebase.database.ValueEventListener;
  */
 
 class ViewHolderReservation extends RecyclerView.ViewHolder{
+    private View view;
     private TextView name, addr, cell, time, price;
     private int position;
 
     public ViewHolderReservation(View itemView){
         super(itemView);
 
-        name = itemView.findViewById(R.id.listview_name);
-        addr = itemView.findViewById(R.id.listview_address);
-        cell = itemView.findViewById(R.id.listview_cellphone);
-        time = itemView.findViewById(R.id.textView_time);
-        price = itemView.findViewById(R.id.listview_price);
+        this.name = itemView.findViewById(R.id.listview_name);
+        this.addr = itemView.findViewById(R.id.listview_address);
+        this.cell = itemView.findViewById(R.id.listview_cellphone);
+        this.time = itemView.findViewById(R.id.textView_time);
+        this.price = itemView.findViewById(R.id.listview_price);
+        this.view = itemView;
     }
 
-    void setData(OrderItem current, int position){
-        this.name.setText(current.getName());
-        this.addr.setText(current.getAddrCustomer());
-        this.cell.setText(current.getCell());
-        this.time.setText(current.getTime());
-        this.price.setText(current.getTotPrice());
-        this.position = position;
+    void setData(OrderItem current, int pos){
+        Query query = FirebaseDatabase.getInstance().getReference(CUSTOMER_PATH).child(current.getKey()).child("customer_info");
+
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    name.setText(dataSnapshot.child("name").getValue(String.class));
+                    addr.setText(current.getAddrCustomer());
+                    cell.setText(dataSnapshot.child("phone").getValue(String.class));
+                    time.setText(getDateFromTimestamp(current.getTime()));
+                    price.setText(current.getTotPrice());
+                    position = pos;
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    public View getView() {
+        return view;
+    }
+
+    private String getDateFromTimestamp(Long timestamp){
+        Date d = new Date(timestamp);
+        Calendar c = Calendar.getInstance();
+        c.setTime(d);
+        int hourValue = c.get(Calendar.HOUR);
+        int minValue =c.get(Calendar.MINUTE);
+        String hourString = Integer.toString(hourValue), minString = Integer.toString(minValue);
+
+        if(hourValue < 10)
+            hourString = "0" + hourValue;
+        if(minValue < 10)
+            minString = "0" + minValue;
+
+        return hourString + ":" + minString;
     }
 }
 
@@ -102,30 +144,25 @@ public class Reservation extends Fragment {
                 View view = LayoutInflater.from(viewGroup.getContext())
                         .inflate(R.layout.reservation_listview, viewGroup, false);
 
-                view.findViewById(R.id.confirm_reservation).setOnClickListener(e -> {
-                    String id = ((TextView)view.findViewById(R.id.listview_name)).getText().toString();
-
-                    Intent mapsIntent = new Intent(getContext(), MapsActivity.class);
-                    mapsIntent.putExtra(ORDER_ID, id);
-                    startActivity(mapsIntent);
-                });
-
-                view.findViewById(R.id.delete_reservation).setOnClickListener(h -> {
-                    String id = ((TextView)view.findViewById(R.id.listview_name)).getText().toString();
-                    removeOrder(id);
-                });
-
-                view.findViewById(R.id.open_reservation).setOnClickListener(k -> {
-                    String id = ((TextView)view.findViewById(R.id.listview_name)).getText().toString();
-                    viewOrder(id, false);
-                });
-
                 return new ViewHolderReservation(view);
             }
 
             @Override
             protected void onBindViewHolder(@NonNull ViewHolderReservation holder, int position, @NonNull OrderItem model) {
                 holder.setData(model, position);
+                String key = getRef(position).getKey();
+
+                holder.getView().findViewById(R.id.confirm_reservation).setOnClickListener(e -> {
+                    Intent mapsIntent = new Intent(getContext(), MapsActivity.class);
+                    mapsIntent.putExtra(ORDER_ID, key);
+                    startActivity(mapsIntent);
+                });
+
+                holder.getView().findViewById(R.id.delete_reservation).setOnClickListener(h ->
+                        removeOrder(key));
+
+                holder.getView().findViewById(R.id.open_reservation).setOnClickListener(k ->
+                        viewOrder(key, false));
             }
         };
 
@@ -173,7 +210,7 @@ public class Reservation extends Fragment {
         view.findViewById(R.id.button_confirm).setOnClickListener(e -> {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             Query queryDel = database.getReference().child(RESTAURATEUR_INFO + "/" + ROOT_UID
-                    + "/" + RESERVATION_PATH).orderByChild("name").equalTo(id);
+                    + "/" + RESERVATION_PATH).child(id);
 
             queryDel.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -207,27 +244,28 @@ public class Reservation extends Fragment {
         AlertDialog reservationDialog = new AlertDialog.Builder(this.getContext()).create();
         LayoutInflater inflater = LayoutInflater.from(this.getContext());
         final View view = inflater.inflate(R.layout.dishes_list_dialog, null);
-        final OrderItem[] i = {new OrderItem()};
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         Query query;
 
         if(!order)
             query = database.getReference().child(RESTAURATEUR_INFO + "/" + ROOT_UID
-                    + "/" + RESERVATION_PATH).orderByChild("name").equalTo(id);
+                    + "/" + RESERVATION_PATH).child(id).child("dishes");
         else
             query = database.getReference().child(RESTAURATEUR_INFO + "/" + ROOT_UID
-                    + "/" + ACCEPTED_ORDER_PATH).orderByChild("name").equalTo(id);
+                    + "/" + ACCEPTED_ORDER_PATH).child(id).child("dishes");
 
-        query.addValueEventListener(new ValueEventListener() {
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
+                    ArrayList<String> dishes = new ArrayList<>();
+
                     for(DataSnapshot d : dataSnapshot.getChildren()){
-                        i[0] = d.getValue(OrderItem.class);
+                        dishes.add(d.getKey() + " " + d.getValue(Integer.class));
                     }
 
                     recyclerView_ordered = view.findViewById(R.id.ordered_list);
-                    mAdapter_ordered = new RecyclerAdapterOrdered(reservationDialog.getContext(), i[0].getOrder());
+                    mAdapter_ordered = new RecyclerAdapterOrdered(reservationDialog.getContext(), dishes);
                     layoutManager = new LinearLayoutManager(reservationDialog.getContext());
                     recyclerView_ordered.setAdapter(mAdapter_ordered);
                     recyclerView_ordered.setLayoutManager(layoutManager);

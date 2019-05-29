@@ -195,7 +195,7 @@ public class MapsActivity extends AppCompatActivity implements MapsFragment.OnFr
     public void selectRider(String riderId, String orderId) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         Query queryDel = database.getReference().child(RESTAURATEUR_INFO + "/" + ROOT_UID
-                + "/" + RESERVATION_PATH).orderByChild("name").equalTo(orderId);
+                + "/" + RESERVATION_PATH).child(orderId);
 
         queryDel.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -205,12 +205,8 @@ public class MapsActivity extends AppCompatActivity implements MapsFragment.OnFr
                             + "/" + ACCEPTED_ORDER_PATH);
                     Map<String, Object> orderMap = new HashMap<>();
 
-                    for (DataSnapshot d : dataSnapshot.getChildren()) {
-                        OrderItem reservationItem = d.getValue(OrderItem.class);
-                        orderMap.put(Objects.requireNonNull(acceptOrder.push().getKey()), reservationItem);
-                        d.getRef().removeValue();
-                    }
-
+                    orderMap.put(Objects.requireNonNull(acceptOrder.push().getKey()), dataSnapshot.getValue(OrderItem.class));
+                    dataSnapshot.getRef().removeValue();
                     acceptOrder.updateChildren(orderMap);
 
                     // choosing the selected rider

@@ -118,7 +118,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private HashMap<String, Position> posMap;
     private HashMap<String, String> riderName;
     private TreeMap<Double, String> distanceMap;
-    private HashMap <String, Marker> markerMap = new HashMap<>();;
+    private HashMap <String, Marker> markerMap = new HashMap<>();
     private HashSet<String> riderKey = new HashSet<>();
 
     private OnFragmentInteractionListener mListener;
@@ -222,7 +222,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                     else{
                         boolean first = true;
                         for (Map.Entry<Double, String> entry : distanceMap.entrySet()) {
-                            if(!(riderKey.contains(entry.getValue()))) {
+                            if(!riderKey.contains(entry.getValue())) {
                                 riderKey.add(entry.getValue());
                                 if (first) {
                                     first = false;
@@ -232,18 +232,15 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.nearest_icon))
                                             //.icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("rider_icon_maps", 130, 130)))
                                             .snippet(new DecimalFormat("#.##").format(entry.getKey()) + " km"));
+                                    m.setTag(entry.getValue());
                                     markerMap.put(entry.getValue(), m);
-                                    Log.d("ID1", ""+entry.getValue());
-                                    mMap.setOnInfoWindowClickListener(marker -> selectRider(entry.getValue(), getActivity().getIntent().getStringExtra(ORDER_ID)));
                                 } else {
                                     Marker m = mMap.addMarker(new MarkerOptions().position(new LatLng(posMap.get(entry.getValue()).latitude, posMap.get(entry.getValue()).longitude))
                                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_rider))
                                             .title(riderName.get(entry.getValue()))
                                             .snippet(new DecimalFormat("#.##").format(entry.getKey()) + " km"));
-
+                                    m.setTag(entry.getValue());
                                     markerMap.put(entry.getValue(), m);
-                                    Log.d("ID2", ""+entry.getValue());
-                                    mMap.setOnInfoWindowClickListener(marker -> selectRider(entry.getValue(), getActivity().getIntent().getStringExtra(ORDER_ID)));
                                 }
                             }
                             else{
@@ -253,19 +250,21 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                                     markerMap.get(entry.getValue()).setPosition(new LatLng(posMap.get(entry.getValue()).latitude, posMap.get(entry.getValue()).longitude));
                                     markerMap.get(entry.getValue()).setSnippet(new DecimalFormat("#.##").format(entry.getKey()) + " km");
                                     markerMap.get(entry.getValue()).setIcon(BitmapDescriptorFactory.fromResource(R.drawable.nearest_icon));
-                                    mMap.setOnInfoWindowClickListener(marker -> selectRider(entry.getValue(), getActivity().getIntent().getStringExtra(ORDER_ID)));
                                 }
                                 else{
                                     markerMap.get(entry.getValue()).setPosition(new LatLng(posMap.get(entry.getValue()).latitude, posMap.get(entry.getValue()).longitude));
                                     markerMap.get(entry.getValue()).setSnippet(new DecimalFormat("#.##").format(entry.getKey()) + " km");
                                     markerMap.get(entry.getValue()).setIcon(BitmapDescriptorFactory.fromResource(R.drawable.icon_rider));
-                                    mMap.setOnInfoWindowClickListener(marker -> selectRider(entry.getValue(), getActivity().getIntent().getStringExtra(ORDER_ID)));
                                 }
                             }
                         }
 
                         mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude))
                             .title("My Restaurant"));
+
+                        mMap.setOnInfoWindowClickListener(marker ->
+                                selectRider(marker.getTag().toString(), getActivity().getIntent().getStringExtra(ORDER_ID)));
+
                         ((MapsActivity) getActivity()).saveDistanceMap(distanceMap);
                         ((MapsActivity) getActivity()).saveRidersList(riderName);
                     }
@@ -287,7 +286,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         view.findViewById(R.id.button_confirm).setOnClickListener(e -> {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             Query queryDel = database.getReference().child(RESTAURATEUR_INFO + "/" + ROOT_UID
-                    + "/" + RESERVATION_PATH).orderByChild("name").equalTo(orderId);
+                    + "/" + RESERVATION_PATH).child(orderId);
 
             queryDel.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -297,12 +296,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                                 + "/" + ACCEPTED_ORDER_PATH);
                         Map<String, Object> orderMap = new HashMap<>();
 
-                        for (DataSnapshot d : dataSnapshot.getChildren()) {
-                            OrderItem reservationItem = d.getValue(OrderItem.class);
-                            orderMap.put(Objects.requireNonNull(acceptOrder.push().getKey()), reservationItem);
-                            d.getRef().removeValue();
-                        }
-
+                        orderMap.put(Objects.requireNonNull(acceptOrder.push().getKey()), dataSnapshot.getValue(OrderItem.class));
+                        dataSnapshot.getRef().removeValue();
                         acceptOrder.updateChildren(orderMap);
 
                         // choosing the selected rider
@@ -328,6 +323,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                                     //setting to 'false' boolean variable of rider
                                     DatabaseReference setFalse = database.getReference(RIDERS_PATH + "/" + keyRider + "/available");
                                     setFalse.setValue(false);
+
+                                    riderKey.remove(riderId);
 
                                     Toast.makeText(getContext(), "Order assigned to rider " + name, Toast.LENGTH_LONG).show();
 
@@ -424,7 +421,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onPause() {
-        Log.d("onPause", "()");
         queryRestPos.removeEventListener(restPosList);
         queryRiderPos.removeEventListener(riderPosList);
         super.onPause();
@@ -432,13 +428,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onStop() {
-        Log.d("OnStop", "()");
         super.onStop();
     }
 
     @Override
     public void onResume() {
-        Log.d("onResume","");
         super.onResume();
     }
 

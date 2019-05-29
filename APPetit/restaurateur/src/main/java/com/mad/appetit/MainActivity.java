@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
                                 if(task.isSuccessful()) {
                                     ROOT_UID = auth.getUid();
 
-                                    progressDialog.hide();
+                                    progressDialog.dismiss();
 
                                     Intent fragment = new Intent(this, FragmentManager.class);
                                     startActivity(fragment);
@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 else {
                                     //Log.w("LOGIN", "signInWithCredential:failure", task.getException());
-                                    progressDialog.hide();
+                                    progressDialog.dismiss();
                                     Snackbar.make(findViewById(R.id.email), "Authentication Failed. Try again.", Snackbar.LENGTH_SHORT).show();
                                 }
                             });

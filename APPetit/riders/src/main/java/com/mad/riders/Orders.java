@@ -184,7 +184,7 @@ public class Orders extends Fragment implements OnMapReadyCallback {
                 for(DataSnapshot d : dataSnapshot.getChildren()) {
                     order = d.getValue(OrderItem.class);
                     setOrderView(view,order);
-                    String restaurantAddr = order.getAddrRestaurant();
+                    String restaurantAddr = order.getAddrCustomer();
                     String customerAddress = order.getAddrCustomer();
                     Log.d("QUERY", customerAddress);
                     Log.d("QUERY", restaurantAddr);

@@ -122,13 +122,6 @@ public class ListRiderFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static ListRiderFragment newInstance() {
-        ListRiderFragment fragment = new ListRiderFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -172,7 +165,7 @@ public class ListRiderFragment extends Fragment {
         view.findViewById(R.id.button_confirm).setOnClickListener(e -> {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             Query queryDel = database.getReference().child(RESTAURATEUR_INFO + "/" + ROOT_UID
-                    + "/" + RESERVATION_PATH).orderByChild("name").equalTo(id);
+                    + "/" + RESERVATION_PATH).child(id);
 
             queryDel.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -182,12 +175,8 @@ public class ListRiderFragment extends Fragment {
                                 + "/" + ACCEPTED_ORDER_PATH);
                         Map<String, Object> orderMap = new HashMap<>();
 
-                        for (DataSnapshot d : dataSnapshot.getChildren()) {
-                            OrderItem reservationItem = d.getValue(OrderItem.class);
-                            orderMap.put(Objects.requireNonNull(acceptOrder.push().getKey()), reservationItem);
-                            d.getRef().removeValue();
-                        }
-
+                        orderMap.put(Objects.requireNonNull(acceptOrder.push().getKey()), dataSnapshot.getValue(OrderItem.class));
+                        dataSnapshot.getRef().removeValue();
                         acceptOrder.updateChildren(orderMap);
 
                         // choosing the first available rider which assign the order

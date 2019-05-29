@@ -1,56 +1,47 @@
 package com.mad.mylibrary;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 public final class OrderItem {
-    public String name, addrCustomer, addrRestaurant, cell, time, totPrice, img;
-    public ArrayList<String> order;
+    public String key, addrCustomer, totPrice;
+    public HashMap<String, Integer> dishes; //key = dish name, value = quantity
+    public Long time;
+    Integer status;
 
     public OrderItem(){
 
     }
 
-    public OrderItem(String name, String addrCustomer, String addrRestaurant, String cell, String time, String totPrice, String img, ArrayList<String> order) {
-        this.name = name;
+    public OrderItem(String key, String addrCustomer, String totPrice, Integer status, HashMap<String, Integer> dishes, Long time) {
+        this.key = key;
         this.addrCustomer = addrCustomer;
-        this.addrRestaurant = addrRestaurant;
-        this.cell = cell;
-        this.time = time;
         this.totPrice = totPrice;
-        this.img = img;
-        this.order = order;
+        this.status = status;
+        this.dishes = dishes;
+        this.time = time;
     }
 
-    public String getName() {
-        return name;
+    public String getKey() {
+        return key;
     }
 
     public String getAddrCustomer() {
         return addrCustomer;
     }
 
-    public String getAddrRestaurant() {
-        return addrRestaurant;
-    }
-
-    public String getCell() {
-        return cell;
-    }
-
-    public String getTime() {
-        return time;
-    }
-
     public String getTotPrice() {
         return totPrice;
     }
 
-    public String getImg() {
-        return img;
+    public Integer getStatus() {
+        return status;
     }
 
-    public ArrayList<String> getOrder() {
-        return order;
+    public HashMap<String, Integer> getDishes() {
+        return dishes;
+    }
+
+    public Long getTime() {
+        return time;
     }
 }
