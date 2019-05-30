@@ -32,12 +32,16 @@ import java.util.Objects;
 import java.util.TreeMap;
 
 import static com.mad.mylibrary.SharedClass.ACCEPTED_ORDER_PATH;
+import static com.mad.mylibrary.SharedClass.CUSTOMER_ID;
+import static com.mad.mylibrary.SharedClass.CUSTOMER_PATH;
 import static com.mad.mylibrary.SharedClass.ORDER_ID;
 import static com.mad.mylibrary.SharedClass.RESERVATION_PATH;
 import static com.mad.mylibrary.SharedClass.RESTAURATEUR_INFO;
 import static com.mad.mylibrary.SharedClass.RIDERS_ORDER;
 import static com.mad.mylibrary.SharedClass.RIDERS_PATH;
 import static com.mad.mylibrary.SharedClass.ROOT_UID;
+import static com.mad.mylibrary.SharedClass.STATUS_DELIVERING;
+import static com.mad.mylibrary.SharedClass.STATUS_DISCARDED;
 
 public class MapsActivity extends AppCompatActivity implements MapsFragment.OnFragmentInteractionListener,
         ListRiderFragment.OnFragmentInteractionListener{
@@ -182,7 +186,9 @@ public class MapsActivity extends AppCompatActivity implements MapsFragment.OnFr
 
         view.findViewById(R.id.button_confirm).setOnClickListener(e -> {
                     choiceDialog.dismiss();
-                    selectRider(distanceMap.firstEntry().getValue(), getIntent().getStringExtra(ORDER_ID));
+                    selectRider(distanceMap.firstEntry().getValue(),
+                            getIntent().getStringExtra(ORDER_ID),
+                            getIntent().getStringExtra(CUSTOMER_ID));
                 });
 
         view.findViewById(R.id.button_cancel).setOnClickListener(e -> choiceDialog.dismiss());
@@ -192,7 +198,7 @@ public class MapsActivity extends AppCompatActivity implements MapsFragment.OnFr
         choiceDialog.show();
     }
 
-    public void selectRider(String riderId, String orderId) {
+    public void selectRider(String riderId, String orderId, String customerId) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         Query queryDel = database.getReference().child(RESTAURATEUR_INFO + "/" + ROOT_UID
                 + "/" + RESERVATION_PATH).child(orderId);
@@ -231,6 +237,13 @@ public class MapsActivity extends AppCompatActivity implements MapsFragment.OnFr
                                 //setting to 'false' boolean variable of rider
                                 DatabaseReference setFalse = database.getReference(RIDERS_PATH + "/" + keyRider + "/available");
                                 setFalse.setValue(false);
+
+                                //setting status delivering of the order to customer
+                                DatabaseReference refCustomerOrder = FirebaseDatabase.getInstance()
+                                        .getReference().child(CUSTOMER_PATH + "/" + customerId).child("orders").child(orderId);
+                                HashMap<String, Object> order = new HashMap<>();
+                                order.put("status", STATUS_DELIVERING);
+                                refCustomerOrder.updateChildren(order);
 
                                 Toast.makeText(getApplicationContext(), "Order assigned to rider " + name, Toast.LENGTH_LONG).show();
 

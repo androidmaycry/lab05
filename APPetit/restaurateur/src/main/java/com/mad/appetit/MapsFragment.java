@@ -263,7 +263,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                             .title("My Restaurant"));
 
                         mMap.setOnInfoWindowClickListener(marker ->
-                                selectRider(marker.getTag().toString(), getActivity().getIntent().getStringExtra(ORDER_ID)));
+                                selectRider(marker.getTag().toString(),
+                                        getActivity().getIntent().getStringExtra(ORDER_ID),
+                                        getActivity().getIntent().getStringExtra(CUSTOMER_ID)));
 
                         ((MapsActivity) getActivity()).saveDistanceMap(distanceMap);
                         ((MapsActivity) getActivity()).saveRidersList(riderName);
@@ -278,7 +280,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         });
     }
 
-    public void selectRider(String riderId, String orderId) {
+    public void selectRider(String riderId, String orderId, String customerId) {
         AlertDialog reservationDialog = new AlertDialog.Builder(this.getContext()).create();
         LayoutInflater inflater = LayoutInflater.from(this.getContext());
         final View view = inflater.inflate(R.layout.reservation_dialog, null);
@@ -323,6 +325,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                                     //setting to 'false' boolean variable of rider
                                     DatabaseReference setFalse = database.getReference(RIDERS_PATH + "/" + keyRider + "/available");
                                     setFalse.setValue(false);
+
+                                    //setting status delivering of the order to customer
+                                    DatabaseReference refCustomerOrder = FirebaseDatabase.getInstance()
+                                            .getReference().child(CUSTOMER_PATH + "/" + customerId).child("orders").child(orderId);
+                                    HashMap<String, Object> order = new HashMap<>();
+                                    order.put("status", STATUS_DELIVERING);
+                                    refCustomerOrder.updateChildren(order);
 
                                     riderKey.remove(riderId);
 

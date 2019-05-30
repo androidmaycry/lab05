@@ -1,8 +1,9 @@
 package com.mad.mylibrary;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public final class OrderItem {
+public final class OrderItem implements Serializable {
     public String key, addrCustomer, totPrice;
     public HashMap<String, Integer> dishes; //key = dish name, value = quantity
     public Long time;
@@ -43,5 +44,29 @@ public final class OrderItem {
 
     public Long getTime() {
         return time;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public void setAddrCustomer(String addrCustomer) {
+        this.addrCustomer = addrCustomer;
+    }
+
+    public void setTotPrice(String totPrice) {
+        this.totPrice = totPrice;
+    }
+
+    public void setDishes(HashMap<String, Integer> dishes) {
+        this.dishes = dishes;
+    }
+
+    public void setTime(Long time) {
+        this.time = time;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 }

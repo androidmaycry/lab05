@@ -33,6 +33,7 @@ public final class SharedClass {
      */
     public static final String EDIT_EXISTING_DISH = "DISH_NAME";
     public static final String ORDER_ID = "ORDER_ID";
+    public static final String CUSTOMER_ID = "CUSTOMER_ID";
 
     /**
      * Permission values

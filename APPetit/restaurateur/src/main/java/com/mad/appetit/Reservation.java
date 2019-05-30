@@ -1,6 +1,8 @@
 package com.mad.appetit;
 
 import static com.mad.mylibrary.SharedClass.*;
+
+import com.google.firebase.database.DatabaseReference;
 import com.mad.mylibrary.OrderItem;
 
 import android.content.Context;
@@ -26,7 +28,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -150,19 +151,20 @@ public class Reservation extends Fragment {
             @Override
             protected void onBindViewHolder(@NonNull ViewHolderReservation holder, int position, @NonNull OrderItem model) {
                 holder.setData(model, position);
-                String key = getRef(position).getKey();
+                String keyOrder = getRef(position).getKey();
 
                 holder.getView().findViewById(R.id.confirm_reservation).setOnClickListener(e -> {
                     Intent mapsIntent = new Intent(getContext(), MapsActivity.class);
-                    mapsIntent.putExtra(ORDER_ID, key);
+                    mapsIntent.putExtra(ORDER_ID, keyOrder);
+                    mapsIntent.putExtra(CUSTOMER_ID, model.getKey());
                     startActivity(mapsIntent);
                 });
 
                 holder.getView().findViewById(R.id.delete_reservation).setOnClickListener(h ->
-                        removeOrder(key));
+                        removeOrder(keyOrder, model.getKey()));
 
                 holder.getView().findViewById(R.id.open_reservation).setOnClickListener(k ->
-                        viewOrder(key, false));
+                        viewOrder(keyOrder, false));
             }
         };
 
@@ -175,6 +177,12 @@ public class Reservation extends Fragment {
             @Override
             protected void onBindViewHolder(@NonNull ViewHolderReservation holder, int position, @NonNull OrderItem model) {
                 holder.setData(model, position);
+
+                holder.getView().findViewById(R.id.confirm_reservation).setVisibility(View.INVISIBLE);
+                holder.getView().findViewById(R.id.delete_reservation).setVisibility(View.INVISIBLE);
+
+                holder.getView().findViewById(R.id.open_reservation).setOnClickListener(k ->
+                        viewOrder(getRef(position).getKey(), false));
             }
 
             @NonNull
@@ -182,14 +190,6 @@ public class Reservation extends Fragment {
             public ViewHolderReservation onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.reservation_listview, parent, false);
-
-                view.findViewById(R.id.confirm_reservation).setVisibility(View.INVISIBLE);
-                view.findViewById(R.id.delete_reservation).setVisibility(View.INVISIBLE);
-
-                view.findViewById(R.id.open_reservation).setOnClickListener(k -> {
-                    String id = ((TextView)view.findViewById(R.id.listview_name)).getText().toString();
-                    viewOrder(id, true);
-                });
 
                 return new ViewHolderReservation(view);
             }
@@ -202,7 +202,7 @@ public class Reservation extends Fragment {
         return view;
     }
 
-    public void removeOrder(String id){
+    public void removeOrder(String keyOrder, String keyCustomer){
         AlertDialog reservationDialog = new AlertDialog.Builder(this.getContext()).create();
         LayoutInflater inflater = LayoutInflater.from(this.getContext());
         final View view = inflater.inflate(R.layout.reservation_dialog, null);
@@ -210,7 +210,7 @@ public class Reservation extends Fragment {
         view.findViewById(R.id.button_confirm).setOnClickListener(e -> {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             Query queryDel = database.getReference().child(RESTAURATEUR_INFO + "/" + ROOT_UID
-                    + "/" + RESERVATION_PATH).child(id);
+                    + "/" + RESERVATION_PATH).child(keyOrder);
 
             queryDel.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -227,7 +227,12 @@ public class Reservation extends Fragment {
                 }
             });
 
-            mAdapter.notifyDataSetChanged();
+            //setting status canceled of the order to customer
+            DatabaseReference refCustomerOrder = FirebaseDatabase.getInstance()
+                    .getReference().child(CUSTOMER_PATH + "/" + keyCustomer).child("orders").child(keyOrder);
+            HashMap<String, Object> order = new HashMap<>();
+            order.put("status", STATUS_DISCARDED);
+            refCustomerOrder.updateChildren(order);
 
             reservationDialog.dismiss();
         });
@@ -261,7 +266,7 @@ public class Reservation extends Fragment {
                     ArrayList<String> dishes = new ArrayList<>();
 
                     for(DataSnapshot d : dataSnapshot.getChildren()){
-                        dishes.add(d.getKey() + " " + d.getValue(Integer.class));
+                        dishes.add("Dish: " + d.getKey() + " - Quantity: " + d.getValue(Integer.class));
                     }
 
                     recyclerView_ordered = view.findViewById(R.id.ordered_list);
