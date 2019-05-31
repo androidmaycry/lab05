@@ -227,6 +227,8 @@ public class Reservation extends Fragment {
                 }
             });
 
+            mAdapter.notifyDataSetChanged();
+
             //setting status canceled of the order to customer
             DatabaseReference refCustomerOrder = FirebaseDatabase.getInstance()
                     .getReference().child(CUSTOMER_PATH + "/" + keyCustomer).child("orders").child(keyOrder);
