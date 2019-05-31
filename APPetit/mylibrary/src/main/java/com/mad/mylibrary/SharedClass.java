@@ -1,5 +1,8 @@
 package com.mad.mylibrary;
 
+
+import java.util.HashMap;
+
 public final class SharedClass {
     /**
      * Key for onSaveInstanceState() and onRestoreInstanceState()
@@ -54,4 +57,9 @@ public final class SharedClass {
     public static final String RIDERS_PATH = "/riders";
     public static final String RIDERS_ORDER = "/pending";
     public static final String CUSTOMER_PATH = "/customers";
+
+    /**
+     * List of orders for a customer
+     */
+    public static HashMap<String, Integer> orderToTrack = new HashMap<String, Integer>();
 }
