@@ -125,7 +125,7 @@ public class EditOffer extends AppCompatActivity {
                     desc = dish.getDesc();
                     priceValue = dish.getPrice();
                     quantValue = dish.getQuantity();
-                    currentPhotoPath = dish.getPhotoUri();
+                    currentPhotoPath = dish.getPhoto();
 
                     InputStream inputStream = null;
 
@@ -415,9 +415,9 @@ public class EditOffer extends AppCompatActivity {
                     Uri downUri = task.getResult();
 
                     if(editing)
-                        dishMap.put(keyChild, new DishItem(name, desc, priceValue, quantValue, downUri.toString()));
+                        dishMap.put(keyChild, new DishItem(name, desc, priceValue, quantValue, downUri.toString(), 0));
                     else
-                        dishMap.put(Objects.requireNonNull(myRef.push().getKey()), new DishItem(name, desc, priceValue, quantValue, downUri.toString()));
+                        dishMap.put(Objects.requireNonNull(myRef.push().getKey()), new DishItem(name, desc, priceValue, quantValue, downUri.toString(), 0));
 
                     myRef.updateChildren(dishMap);
                 }
@@ -425,9 +425,9 @@ public class EditOffer extends AppCompatActivity {
         }
         else{
             if(editing && currentPhotoPath != null)
-                dishMap.put(keyChild, new DishItem(name, desc, priceValue, quantValue, currentPhotoPath));
+                dishMap.put(keyChild, new DishItem(name, desc, priceValue, quantValue, currentPhotoPath, 0));
             else
-                dishMap.put(Objects.requireNonNull(myRef.push().getKey()), new DishItem(name, desc, priceValue, quantValue, null));
+                dishMap.put(Objects.requireNonNull(myRef.push().getKey()), new DishItem(name, desc, priceValue, quantValue, null, 0));
 
             myRef.updateChildren(dishMap);
         }
