@@ -40,7 +40,7 @@ public class FragmentManager extends AppCompatActivity implements DailyOffer.OnF
                 return true;
             case R.id.navigation_profile:
                 checkBadge();
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Profile()).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new NewProfile()).commit();
                 return true;
             case R.id.navigation_dailyoffer:
                 checkBadge();
