@@ -270,7 +270,7 @@ public class MapsActivity extends AppCompatActivity implements MapsFragment.OnFr
 
                                     @Override
                                     public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                                        Log.w("RESERVATION", "Failed to read value.", databaseError.toException());
                                     }
                                 });
                             }
@@ -278,7 +278,7 @@ public class MapsActivity extends AppCompatActivity implements MapsFragment.OnFr
 
                         @Override
                         public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                            Log.w("RESERVATION", "Failed to read value.", databaseError.toException());
                         }
                     });
                 }
