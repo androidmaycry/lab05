@@ -60,7 +60,10 @@ import com.mad.mylibrary.Restaurateur;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -101,6 +104,7 @@ public class Orders extends Fragment implements OnMapReadyCallback {
     private Restaurateur restaurateur;
     private LatLng pos_restaurant;
     private Long distance;
+    private String orderKey;
 
     public Orders() {
         // Required empty public constructor
@@ -190,10 +194,10 @@ public class Orders extends Fragment implements OnMapReadyCallback {
         listenerQuery = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
                 for(DataSnapshot d : dataSnapshot.getChildren()) {
+                    orderKey = d.getKey();
                     order = d.getValue(OrderRiderItem.class);
-                    setOrderView(view,order);
+                    setOrderView(view, order);
                     String restaurantAddress = order.getAddrRestaurant();
                     String customerAddress = order.getAddrCustomer();
                     Log.d("QUERY", customerAddress);
@@ -331,6 +335,13 @@ public class Orders extends Fragment implements OnMapReadyCallback {
             Map<String, Object> status = new HashMap<String, Object>();
             status.put("available", true);
             query2.updateChildren(status);
+
+            //SET STATUS TO CUSTOMER ORDER
+            DatabaseReference refCustomerOrder = FirebaseDatabase.getInstance()
+                    .getReference().child(CUSTOMER_PATH + "/" + order.getKeyCustomer()).child("orders").child(orderKey);
+            HashMap<String, Object> order = new HashMap<>();
+            order.put("status", STATUS_DELIVERING);
+            refCustomerOrder.updateChildren(order);
             mMap.clear();
 
             //TODO: save distance
@@ -345,8 +356,8 @@ public class Orders extends Fragment implements OnMapReadyCallback {
             //SET STATUS TO CUSTOMER
             //DatabaseReference refCustomerOrder = FirebaseDatabase.getInstance()
                     //.getReference().child(CUSTOMER_PATH + "/" + customerId).child("orders").child(orderId);
-            HashMap<String, Object> order = new HashMap<>();
-            order.put("status", STATUS_DELIVERING);
+            HashMap<String, Object> order_map = new HashMap<>();
+            order.put("status", STATUS_DELIVERED);
             //refCustomerOrder.updateChildren(order);
             reservationDialog.dismiss();
         });
@@ -481,14 +492,29 @@ public class Orders extends Fragment implements OnMapReadyCallback {
                 Marker finalMarker =mMap.addMarker(new MarkerOptions()
                         .position(finalPos)
                         //TODO: FIX NAME
-                        .title(restaurateur.getName())
+                        .title("NAME")
                         .snippet("Duration: " + route.legs[0].duration
                         ));
-                distance += route.legs[0].distance.inMeters;
+                //distance += route.legs[0].distance.inMeters;
             }
         });
     }
 
+    private String getDateFromTimestamp(Long timestamp){
+        Date d = new Date(timestamp);
+        Calendar c = Calendar.getInstance();
+        c.setTime(d);
+        int hourValue = c.get(Calendar.HOUR);
+        int minValue =c.get(Calendar.MINUTE);
+        String hourString = Integer.toString(hourValue), minString = Integer.toString(minValue);
+
+        if(hourValue < 10)
+            hourString = "0" + hourValue;
+        if(minValue < 10)
+            minString = "0" + minValue;
+
+        return hourString + ":" + minString;
+    }
 
     //Other functions
     public LatLng getLocationFromAddress(String strAddress) {

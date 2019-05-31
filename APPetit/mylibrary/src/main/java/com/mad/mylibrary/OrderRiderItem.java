@@ -8,6 +8,10 @@ public class OrderRiderItem {
     private String totPrice;
     private Long time;
 
+    public OrderRiderItem() {
+
+    }
+
     public OrderRiderItem(String keyRestaurant, String keyCustomer, String addrCustomer, String addrRestaurant, Long time, String totPrice) {
         this.keyRestaurant = keyRestaurant;
         this.keyCustomer = keyCustomer;
