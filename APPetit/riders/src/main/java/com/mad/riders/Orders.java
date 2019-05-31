@@ -53,6 +53,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.mad.mylibrary.OrderRiderItem;
 import com.mad.mylibrary.Position;
 import com.mad.mylibrary.Restaurateur;
 
@@ -85,7 +86,7 @@ public class Orders extends Fragment implements OnMapReadyCallback {
 
     private  boolean available;
     private boolean restaurantReached;
-    private OrderItem order;
+    private OrderRiderItem order;
 
     private DatabaseReference query1;
     private FusedLocationProviderClient mFusedLocationClient;
@@ -191,31 +192,15 @@ public class Orders extends Fragment implements OnMapReadyCallback {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                 for(DataSnapshot d : dataSnapshot.getChildren()) {
-                    order = d.getValue(OrderItem.class);
+                    order = d.getValue(OrderRiderItem.class);
                     setOrderView(view,order);
-                    String key = order.getKey();
+                    String restaurantAddress = order.getAddrRestaurant();
                     String customerAddress = order.getAddrCustomer();
                     Log.d("QUERY", customerAddress);
 
-                    DatabaseReference query_latlon = database.getInstance()
-                            .getReference(RESERVATION_PATH).child(key).child("info");
-                    ValueEventListener listenerQuery_latlon = new ValueEventListener() {
-
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            restaurateur= dataSnapshot.getValue(Restaurateur.class);
-                            pos_restaurant = getLocationFromAddress(restaurateur.getAddr());
-                            getLastKnownLocation(pos_restaurant);
-                            b.setEnabled(true);
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                        }
-                    };
-
-                    query_latlon.addListenerForSingleValueEvent(listenerQuery_latlon);
+                    pos_restaurant = getLocationFromAddress(restaurantAddress);
+                    getLastKnownLocation(pos_restaurant);
+                    b.setEnabled(true);
                 }
             }
 
@@ -264,14 +249,14 @@ public class Orders extends Fragment implements OnMapReadyCallback {
         reservationDialog.show();
     }
 
-    private void setOrderView(View view,OrderItem order)
+    private void setOrderView(View view,OrderRiderItem order)
     {
         TextView r_addr = view.findViewById(R.id.restaurant_text);
         TextView c_addr = view.findViewById(R.id.customer_text);
         TextView time_text = view.findViewById(R.id.time_text);
         TextView cash_text = view.findViewById(R.id.cash_text);
 
-        r_addr.setText(restaurateur.getAddr());
+        r_addr.setText(order.getAddrRestaurant());
         c_addr.setText(order.getAddrCustomer());
         time_text.setText(order.getTime().toString());
         cash_text.setText(order.getTotPrice() + "$");
