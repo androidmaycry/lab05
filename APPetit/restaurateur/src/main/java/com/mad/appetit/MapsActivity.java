@@ -25,6 +25,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.mad.mylibrary.OrderItem;
+import com.mad.mylibrary.OrderRiderItem;
+import com.mad.mylibrary.Restaurateur;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -206,16 +208,18 @@ public class MapsActivity extends AppCompatActivity implements MapsFragment.OnFr
         queryDel.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
+                if(dataSnapshot.exists()){
                     DatabaseReference acceptOrder = database.getReference(RESTAURATEUR_INFO + "/" + ROOT_UID
                             + "/" + ACCEPTED_ORDER_PATH);
                     Map<String, Object> orderMap = new HashMap<>();
 
-                    orderMap.put(Objects.requireNonNull(acceptOrder.push().getKey()), dataSnapshot.getValue(OrderItem.class));
+                    //removing order from RESERVATION_PATH and store it into ACCEPTED_ORDER_PATH
+                    OrderItem orderItem = dataSnapshot.getValue(OrderItem.class);
+                    orderMap.put(Objects.requireNonNull(acceptOrder.push().getKey()), orderItem);
                     dataSnapshot.getRef().removeValue();
                     acceptOrder.updateChildren(orderMap);
 
-                    // choosing the selected rider
+                    // choosing the selected rider (riderId)
                     Query queryRider = database.getReference(RIDERS_PATH);
                     queryRider.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -231,23 +235,44 @@ public class MapsActivity extends AppCompatActivity implements MapsFragment.OnFr
                                     }
                                 }
 
-                                DatabaseReference addOrderToRider = database.getReference(RIDERS_PATH + "/" + keyRider + RIDERS_ORDER);
-                                addOrderToRider.updateChildren(orderMap);
+                                //getting address of restaurant to fill OrderRiderItem class
+                                DatabaseReference getAddrRestaurant = database.getReference(RESTAURATEUR_INFO + "/" + ROOT_UID
+                                        + "/info");
+                                String finalKeyRider = keyRider;
+                                String finalName = name;
+                                getAddrRestaurant.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        if(dataSnapshot.exists()){
+                                            Restaurateur restaurateur = dataSnapshot.getValue(Restaurateur.class);
 
-                                //setting to 'false' boolean variable of rider
-                                DatabaseReference setFalse = database.getReference(RIDERS_PATH + "/" + keyRider + "/available");
-                                setFalse.setValue(false);
+                                            orderMap.clear();
+                                            orderMap.put(orderId, new OrderRiderItem(ROOT_UID, customerId, orderItem.getAddrCustomer(), restaurateur.getAddr(), orderItem.getTime(), orderItem.getTotPrice()));
+                                            DatabaseReference addOrderToRider = database.getReference(RIDERS_PATH + "/" + finalKeyRider + RIDERS_ORDER);
+                                            addOrderToRider.updateChildren(orderMap);
 
-                                //setting status delivering of the order to customer
-                                DatabaseReference refCustomerOrder = FirebaseDatabase.getInstance()
-                                        .getReference().child(CUSTOMER_PATH + "/" + customerId).child("orders").child(orderId);
-                                HashMap<String, Object> order = new HashMap<>();
-                                order.put("status", STATUS_DELIVERING);
-                                refCustomerOrder.updateChildren(order);
+                                            //setting to 'false' boolean variable of rider
+                                            DatabaseReference setFalse = database.getReference(RIDERS_PATH + "/" + finalKeyRider + "/available");
+                                            setFalse.setValue(false);
 
-                                Toast.makeText(getApplicationContext(), "Order assigned to rider " + name, Toast.LENGTH_LONG).show();
+                                            //setting status delivering of the order to customer
+                                            DatabaseReference refCustomerOrder = FirebaseDatabase.getInstance()
+                                                    .getReference().child(CUSTOMER_PATH + "/" + customerId).child("orders").child(orderId);
+                                            HashMap<String, Object> order = new HashMap<>();
+                                            order.put("status", STATUS_DELIVERING);
+                                            refCustomerOrder.updateChildren(order);
 
-                                finish();
+                                            Toast.makeText(getApplicationContext(), "Order assigned to rider " + finalName, Toast.LENGTH_LONG).show();
+
+                                            finish();
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                    }
+                                });
                             }
                         }
 
