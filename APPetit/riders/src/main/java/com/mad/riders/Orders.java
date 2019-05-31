@@ -195,7 +195,7 @@ public class Orders extends Fragment implements OnMapReadyCallback {
                     setOrderView(view,order);
                     String key = order.getKey();
                     String customerAddress = order.getAddrCustomer();
-                    Log.d("QUERY", customerAddress);;
+                    Log.d("QUERY", customerAddress);
 
                     DatabaseReference query_latlon = database.getInstance()
                             .getReference(RESERVATION_PATH).child(key).child("info");
@@ -356,6 +356,13 @@ public class Orders extends Fragment implements OnMapReadyCallback {
             delivered.put(UUID.randomUUID().toString(),distance);
 
             distance = Long.valueOf(0);
+
+            //SET STATUS TO CUSTOMER
+            //DatabaseReference refCustomerOrder = FirebaseDatabase.getInstance()
+                    //.getReference().child(CUSTOMER_PATH + "/" + customerId).child("orders").child(orderId);
+            HashMap<String, Object> order = new HashMap<>();
+            order.put("status", STATUS_DELIVERING);
+            //refCustomerOrder.updateChildren(order);
             reservationDialog.dismiss();
         });
 
