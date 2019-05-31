@@ -21,6 +21,7 @@ import com.google.maps.PendingResult;
 import com.google.maps.internal.PolylineEncoding;
 import com.google.maps.model.DirectionsResult;
 import com.google.maps.model.DirectionsRoute;
+import com.google.maps.model.Distance;
 import com.mad.mylibrary.OrderItem;
 
 import android.Manifest;
@@ -52,6 +53,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.mad.mylibrary.Position;
+import com.mad.mylibrary.Restaurateur;
 
 
 import java.io.IOException;
@@ -59,6 +62,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -91,6 +95,11 @@ public class Orders extends Fragment implements OnMapReadyCallback {
     private ScrollView mScrollView;
     private DatabaseReference query;
     private ValueEventListener listenerQuery;
+    private FirebaseDatabase database;
+    private LatLng latLng_restaurant;
+    private Restaurateur restaurateur;
+    private LatLng pos_restaurant;
+    private Long distance;
 
     public Orders() {
         // Required empty public constructor
@@ -173,9 +182,9 @@ public class Orders extends Fragment implements OnMapReadyCallback {
             }
         });
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        database = FirebaseDatabase.getInstance();
         query = database
-                .getReference(RIDERS_PATH + "/"+ROOT_UID+"/pending/");
+                .getReference(RIDERS_PATH + "/" + ROOT_UID + "/pending/");
 
         listenerQuery = new ValueEventListener() {
             @Override
@@ -184,18 +193,29 @@ public class Orders extends Fragment implements OnMapReadyCallback {
                 for(DataSnapshot d : dataSnapshot.getChildren()) {
                     order = d.getValue(OrderItem.class);
                     setOrderView(view,order);
-                    String restaurantAddr = order.getAddrCustomer();
+                    String key = order.getKey();
                     String customerAddress = order.getAddrCustomer();
                     Log.d("QUERY", customerAddress);
-                    Log.d("QUERY", restaurantAddr);
 
-                    if(order.getAddrCustomer().compareTo("")!= 0) {
-                        restaurantAddr = restaurantAddr + " Torino";
+                    DatabaseReference query_latlon = database.getInstance()
+                            .getReference(RESERVATION_PATH).child(key).child("info");
+                    ValueEventListener listenerQuery_latlon = new ValueEventListener() {
 
-                        LatLng restaurantPos = getLocationFromAddress(restaurantAddr);
-                        getLastKnownLocation(restaurantPos);
-                        b.setEnabled(true);
-                    }
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            restaurateur= dataSnapshot.getValue(Restaurateur.class);
+                            pos_restaurant = getLocationFromAddress(restaurateur.getAddr());
+                            getLastKnownLocation(pos_restaurant);
+                            b.setEnabled(true);
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    };
+
+                    query_latlon.addListenerForSingleValueEvent(listenerQuery_latlon);
                 }
             }
 
@@ -251,9 +271,9 @@ public class Orders extends Fragment implements OnMapReadyCallback {
         TextView time_text = view.findViewById(R.id.time_text);
         TextView cash_text = view.findViewById(R.id.cash_text);
 
-        r_addr.setText(order.getAddrRestaurant());
+        r_addr.setText(restaurateur.getAddr());
         c_addr.setText(order.getAddrCustomer());
-        time_text.setText(order.getTime());
+        time_text.setText(order.getTime().toString());
         cash_text.setText(order.getTotPrice() + "$");
     }
 
@@ -327,6 +347,22 @@ public class Orders extends Fragment implements OnMapReadyCallback {
             status.put("available", true);
             query2.updateChildren(status);
             mMap.clear();
+
+            //TODO: save distance
+            DatabaseReference query3 = FirebaseDatabase.getInstance()
+                    .getReference(RIDERS_PATH + "/" + ROOT_UID).child("delivered");
+
+            Map<String,Object> delivered = new HashMap<>();
+            delivered.put(UUID.randomUUID().toString(),distance);
+
+            distance = Long.valueOf(0);
+
+            //SET STATUS TO CUSTOMER
+            //DatabaseReference refCustomerOrder = FirebaseDatabase.getInstance()
+                    //.getReference().child(CUSTOMER_PATH + "/" + customerId).child("orders").child(orderId);
+            HashMap<String, Object> order = new HashMap<>();
+            order.put("status", STATUS_DELIVERING);
+            //refCustomerOrder.updateChildren(order);
             reservationDialog.dismiss();
         });
 
@@ -339,38 +375,6 @@ public class Orders extends Fragment implements OnMapReadyCallback {
 
         reservationDialog.show();
     }
-
-    /*
-    public void deletingOrder(){
-
-        AlertDialog reservationDialog = new AlertDialog.Builder(this.getContext()).create();
-        LayoutInflater inflater = LayoutInflater.from(this.getContext());
-        final View view = inflater.inflate(R.layout.reservation_dialog, null);
-
-
-        view.findViewById(R.id.button_confirm).setOnClickListener(e ->{
-            if(!available){
-                Toast.makeText(getContext(),"You can't remove order now!",Toast.LENGTH_LONG)
-                        .show();
-            }
-            else {
-                DatabaseReference query = FirebaseDatabase.getInstance()
-                        .getReference(RIDERS_PATH + "/" + ROOT_UID + "/pending/");
-                query.removeValue();
-                reservationDialog.dismiss();
-            }
-            reservationDialog.dismiss();
-        });
-
-        view.findViewById(R.id.button_cancel).setOnClickListener(e ->{
-            reservationDialog.dismiss();
-        });
-
-        reservationDialog.setView(view);
-        reservationDialog.setTitle("Refuse Order?");
-
-        reservationDialog.show();
-    }*/
 
     @Override
     public void onAttach(Context context) {
@@ -492,9 +496,10 @@ public class Orders extends Fragment implements OnMapReadyCallback {
                 Marker finalMarker =mMap.addMarker(new MarkerOptions()
                         .position(finalPos)
                         //TODO: FIX NAME
-                        .title("RISTORANTE BARDONECCHIA")
+                        .title(restaurateur.getName())
                         .snippet("Duration: " + route.legs[0].duration
                         ));
+                distance += route.legs[0].distance.inMeters;
             }
         });
     }
