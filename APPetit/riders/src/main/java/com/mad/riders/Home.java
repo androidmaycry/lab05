@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
@@ -80,8 +81,11 @@ public class Home extends Fragment {
         database.getReference(RIDERS_PATH).child(ROOT_UID).child("delivered").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.getKey()!= null)
-                distance = (Long) dataSnapshot.getValue();
+                if(dataSnapshot.getKey()!= null) {
+                    distance = (Long) dataSnapshot.getValue();
+                    Button b = view.findViewById(R.id.button_distance);
+                    b.setText(distance.toString());
+                }
             }
 
             @Override
