@@ -64,8 +64,8 @@ class ViewHolderDailyOffer extends RecyclerView.ViewHolder{
         this.dishPrice.setText(current.getPrice() + " €");
         this.dishQuantity.setText(String.valueOf(current.getQuantity()));
 
-        if(current.getPhotoUri() != null)
-            Glide.with(itemView.getContext()).load(current.getPhotoUri()).diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(dishPhoto);
+        if(current.getPhoto() != null)
+            Glide.with(itemView.getContext()).load(current.getPhoto()).diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(dishPhoto);
         else
             Glide.with(itemView.getContext()).load(R.drawable.hamburger).into(dishPhoto);
 

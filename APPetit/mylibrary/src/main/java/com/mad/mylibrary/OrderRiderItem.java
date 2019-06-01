@@ -5,10 +5,14 @@ public class OrderRiderItem {
     private String keyCustomer;
     private String addrCustomer;
     private String addrRestaurant;
-    private String time;
-    private Float totPrice;
+    private String totPrice;
+    private Long time;
 
-    public OrderRiderItem(String keyRestaurant, String keyCustomer, String addrCustomer, String addrRestaurant, String time, Float totPrice) {
+    public OrderRiderItem() {
+
+    }
+
+    public OrderRiderItem(String keyRestaurant, String keyCustomer, String addrCustomer, String addrRestaurant, Long time, String totPrice) {
         this.keyRestaurant = keyRestaurant;
         this.keyCustomer = keyCustomer;
         this.addrCustomer = addrCustomer;
@@ -33,11 +37,11 @@ public class OrderRiderItem {
         return addrRestaurant;
     }
 
-    public String getTime() {
+    public Long getTime() {
         return time;
     }
 
-    public Float getTotPrice() {
+    public String getTotPrice() {
         return totPrice;
     }
 }
