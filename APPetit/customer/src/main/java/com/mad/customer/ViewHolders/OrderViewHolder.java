@@ -2,24 +2,35 @@ package com.mad.customer.ViewHolders;
 
 import android.graphics.Color;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.hsalf.smilerating.SmileRating;
 import com.mad.customer.R;
+import com.mad.customer.UI.NavApp;
 import com.mad.mylibrary.OrderItem;
+import com.mad.mylibrary.ReviewItem;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 
 import static com.mad.mylibrary.SharedClass.RESTAURATEUR_INFO;
+import static com.mad.mylibrary.SharedClass.ROOT_UID;
 import static com.mad.mylibrary.SharedClass.STATUS_DELIVERED;
 import static com.mad.mylibrary.SharedClass.STATUS_DELIVERING;
 import static com.mad.mylibrary.SharedClass.STATUS_DISCARDED;
@@ -85,10 +96,78 @@ public class OrderViewHolder extends RecyclerView.ViewHolder{
 
             }
         });
+        Query query2 = FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO).child(current.getKey()).child("review").child(ROOT_UID);
+        query2.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Button rate = ((Button)view.findViewById(R.id.order_rate_button));
+                if(dataSnapshot.exists()){
+                   rate.setVisibility(View.GONE);
+                }
+                else {
+                    rate.setOnClickListener(a->{
+                        showAlertDialogDelivered(current.getKey());
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     public View getView (){
         return view;
+    }
+
+    private void showAlertDialogDelivered (String resKey){
+        Query query = FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO).child(resKey).child("info");
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                AlertDialog alertDialog = new AlertDialog.Builder(view.getContext()).create();
+                LayoutInflater factory = LayoutInflater.from(view.getContext());
+                final View view = factory.inflate(R.layout.rating_dialog, null);
+
+                alertDialog.setView(view);
+                if(dataSnapshot.child("photoUri").exists()){
+                    Glide.with(view).load(dataSnapshot.child("photoUri").getValue()).into((ImageView) view.findViewById(R.id.dialog_rating_icon));
+                }
+                SmileRating smileRating = (SmileRating) view.findViewById(R.id.dialog_rating_rating_bar);
+                //Button confirm pressed
+                view.findViewById(R.id.dialog_rating_button_positive).setOnClickListener(a->{
+                    if(smileRating.getRating()!=0) {
+                        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO + "/" + resKey).child("review");
+                        HashMap<String, Object> review = new HashMap<>();
+                        String comment = ((EditText)view.findViewById(R.id.dialog_rating_feedback)).getText().toString();
+                        if(!comment.isEmpty()){
+                            review.put(myRef.push().getKey(), new ReviewItem(smileRating.getRating(), comment));
+                            myRef.updateChildren(review);
+                        }
+                        else{
+                            review.put(ROOT_UID, new ReviewItem(smileRating.getRating(), null));
+                            myRef.updateChildren(review);
+                        }
+                        Toast.makeText(view.getContext(), "Thanks for your review!", Toast.LENGTH_LONG).show();
+                        alertDialog.dismiss();
+                    }
+                    else {
+                        Toast.makeText(view.getContext(), "You forgot to rate!", Toast.LENGTH_LONG).show();
+                    }
+                });
+                view.findViewById(R.id.dialog_rating_button_negative).setOnClickListener(b->{
+                    alertDialog.dismiss();
+                });
+                alertDialog.show();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 }
 

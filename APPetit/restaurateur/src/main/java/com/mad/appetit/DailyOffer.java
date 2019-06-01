@@ -31,6 +31,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.mad.mylibrary.DishItem;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -44,7 +45,7 @@ import com.google.firebase.database.ValueEventListener;
 class ViewHolderDailyOffer extends RecyclerView.ViewHolder{
     private ImageView dishPhoto;
     private TextView dishName, dishDesc, dishPrice, dishQuantity;
-    private DailyOfferItem current;
+    private DishItem current;
     private int position;
 
     ViewHolderDailyOffer(View itemView){
@@ -57,7 +58,7 @@ class ViewHolderDailyOffer extends RecyclerView.ViewHolder{
         dishPhoto = itemView.findViewById(R.id.dish_image);
     }
 
-    void setData(DailyOfferItem current, int position){
+    void setData(DishItem current, int position){
         this.dishName.setText(current.getName());
         this.dishDesc.setText(current.getDesc());
         this.dishPrice.setText(current.getPrice() + " €");
@@ -76,14 +77,14 @@ class ViewHolderDailyOffer extends RecyclerView.ViewHolder{
 public class DailyOffer extends Fragment {
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
-    private FirebaseRecyclerAdapter<DailyOfferItem, ViewHolderDailyOffer> mAdapter;
+    private FirebaseRecyclerAdapter<DishItem, ViewHolderDailyOffer> mAdapter;
     private OnFragmentInteractionListener mListener;
 
-    private static FirebaseRecyclerOptions<DailyOfferItem> options =
-            new FirebaseRecyclerOptions.Builder<DailyOfferItem>()
+    private static FirebaseRecyclerOptions<DishItem> options =
+            new FirebaseRecyclerOptions.Builder<DishItem>()
                     .setQuery(FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO + "/" +
                             ROOT_UID + "/" + DISHES_PATH),
-                            DailyOfferItem.class).build();
+                            DishItem.class).build();
 
     public DailyOffer() {
         // Required empty public constructor
@@ -112,9 +113,9 @@ public class DailyOffer extends Fragment {
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
 
-        mAdapter = new FirebaseRecyclerAdapter<DailyOfferItem, ViewHolderDailyOffer>(options) {
+        mAdapter = new FirebaseRecyclerAdapter<DishItem, ViewHolderDailyOffer>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull ViewHolderDailyOffer holder, int position, @NonNull DailyOfferItem model) {
+            protected void onBindViewHolder(@NonNull ViewHolderDailyOffer holder, int position, @NonNull DishItem model) {
                 holder.setData(model, position);
             }
 

@@ -35,6 +35,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.mad.mylibrary.DishItem;
 
 import java.io.File;
 import java.io.IOException;
@@ -110,10 +111,10 @@ public class EditOffer extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
-                    DailyOfferItem dish = new DailyOfferItem();
+                    DishItem dish = new DishItem();
 
                     for(DataSnapshot d : dataSnapshot.getChildren()) {
-                        dish = d.getValue(DailyOfferItem.class);
+                        dish = d.getValue(DishItem.class);
                         keyChild = d.getKey();
                         break;
                     }
@@ -414,9 +415,9 @@ public class EditOffer extends AppCompatActivity {
                     Uri downUri = task.getResult();
 
                     if(editing)
-                        dishMap.put(keyChild, new DailyOfferItem(name, desc, priceValue, quantValue, downUri.toString()));
+                        dishMap.put(keyChild, new DishItem(name, desc, priceValue, quantValue, downUri.toString()));
                     else
-                        dishMap.put(Objects.requireNonNull(myRef.push().getKey()), new DailyOfferItem(name, desc, priceValue, quantValue, downUri.toString()));
+                        dishMap.put(Objects.requireNonNull(myRef.push().getKey()), new DishItem(name, desc, priceValue, quantValue, downUri.toString()));
 
                     myRef.updateChildren(dishMap);
                 }
@@ -424,9 +425,9 @@ public class EditOffer extends AppCompatActivity {
         }
         else{
             if(editing && currentPhotoPath != null)
-                dishMap.put(keyChild, new DailyOfferItem(name, desc, priceValue, quantValue, currentPhotoPath));
+                dishMap.put(keyChild, new DishItem(name, desc, priceValue, quantValue, currentPhotoPath));
             else
-                dishMap.put(Objects.requireNonNull(myRef.push().getKey()), new DailyOfferItem(name, desc, priceValue, quantValue, null));
+                dishMap.put(Objects.requireNonNull(myRef.push().getKey()), new DishItem(name, desc, priceValue, quantValue, null));
 
             myRef.updateChildren(dishMap);
         }
