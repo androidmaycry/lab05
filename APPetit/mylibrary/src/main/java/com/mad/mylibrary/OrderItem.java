@@ -7,7 +7,7 @@ public final class OrderItem implements Serializable {
     public String key, addrCustomer, totPrice;
     public HashMap<String, Integer> dishes; //key = dish name, value = quantity
     public Long time;
-    Integer status;
+    private Integer status;
 
     public OrderItem(){
 

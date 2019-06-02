@@ -11,6 +11,7 @@ import static com.mad.mylibrary.SharedClass.orderToTrack;
 import static com.mad.mylibrary.SharedClass.user;
 import static com.mad.mylibrary.SharedClass.ROOT_UID;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -22,6 +23,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -42,10 +44,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.hsalf.smilerating.SmileRating;
 import com.mad.customer.R;
-import com.mad.customer.UI.Order;
-import com.mad.customer.UI.Profile;
-import com.mad.customer.UI.Restaurant;
-import com.mad.mylibrary.OrderItem;
 import com.mad.mylibrary.ReviewItem;
 import com.mad.mylibrary.User;
 
@@ -59,7 +57,7 @@ public class NavApp extends AppCompatActivity implements
         Order.OnFragmentInteractionListener{
 
     public static final String PREFERENCE_NAME = "ORDER_LIST";
-    static int a = 0;
+
     private SharedPreferences order_to_listen;
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = item ->  {
@@ -104,7 +102,7 @@ public class NavApp extends AppCompatActivity implements
 
         getUserInfo();
 
-        Log.d("ROOT_UID", ROOT_UID);
+
     }
 
     public void getUserInfo() {
@@ -138,20 +136,20 @@ public class NavApp extends AppCompatActivity implements
                         Integer changed_status = changed_statusi.intValue();
                         if(!changed_status.equals(entry.getValue())) {
                             if (changed_status == STATUS_DISCARDED) {
-                                a++;
                                 entry.setValue(changed_status);
                                 orderToTrack.replace(entry.getKey(), changed_status);
-                                //showAlertDialog("Ordine rifiutato " + dataSnapshot.getKey() + " Code:" + a);
+                                showAlertDialogDiscarded((String)dataSnapshot.child("key").getValue(), dataSnapshot.getKey());
                             }
                             else if (changed_status==STATUS_DELIVERING){
                                 entry.setValue(changed_status);
                                 orderToTrack.replace(entry.getKey(), changed_status);
-                                //showAlertDialog("Ordine in consegna " + dataSnapshot.getKey() + " Code:" + a);
+
                             }
                             else if (changed_status==STATUS_DELIVERED){
                                 entry.setValue(changed_status);
                                 orderToTrack.replace(entry.getKey(), changed_status);
-                                showAlertDialogDelivered((String)dataSnapshot.child("key").getValue());
+                                setRated(dataSnapshot.getKey(), false);
+                                showAlertDialogDelivered((String)dataSnapshot.child("key").getValue(), dataSnapshot.getKey());
                             }
                         }
                     }
@@ -165,7 +163,40 @@ public class NavApp extends AppCompatActivity implements
         }
     }
 
-    private void showAlertDialogDelivered (String resKey){
+    private void showAlertDialogDiscarded (String resKey, String orderKey){
+        Query query = FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO).child(resKey).child("info");
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                AlertDialog alertDialog = new AlertDialog.Builder(NavApp.this).create();
+                LayoutInflater factory = LayoutInflater.from(NavApp.this);
+                final View view = factory.inflate(R.layout.discarded_dialog, null);
+
+                alertDialog.setView(view);
+                if(dataSnapshot.child("photoUri").exists()){
+                    Glide.with(view).load(dataSnapshot.child("photoUri").getValue()).into((ImageView) view.findViewById(R.id.dialog_discarded_rating_icon));
+                }
+                ((TextView)view.findViewById(R.id.discarded_res_name)).setText((String)dataSnapshot.child("name").getValue());
+                alertDialog.show();
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+    private void setRated (String orderKey, boolean bool) {
+        DatabaseReference myRef2 = FirebaseDatabase.getInstance().getReference(CUSTOMER_PATH).child(ROOT_UID).child("orders").child(orderKey);
+        HashMap <String, Object> rated = new HashMap<>();
+        rated.put("rated", bool);
+        myRef2.updateChildren(rated);
+    }
+
+    private void showAlertDialogDelivered (String resKey, String orderKey){
         Query query = FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO).child(resKey).child("info");
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -186,10 +217,12 @@ public class NavApp extends AppCompatActivity implements
                         HashMap<String, Object> review = new HashMap<>();
                         String comment = ((EditText)view.findViewById(R.id.dialog_rating_feedback)).getText().toString();
                         if(!comment.isEmpty()){
+                            setRated(orderKey, true);
                             review.put(myRef.push().getKey(), new ReviewItem(smileRating.getRating(), comment));
                             myRef.updateChildren(review);
                         }
                         else{
+                            setRated(orderKey, true);
                             review.put(ROOT_UID, new ReviewItem(smileRating.getRating(), null));
                             myRef.updateChildren(review);
                         }

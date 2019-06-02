@@ -1,6 +1,7 @@
 package com.mad.customer.UI;
 
 import com.mad.customer.Adapters.ConfirmRecyclerAdapter;
+import com.mad.customer.Items.OrderCustomerItem;
 import com.mad.customer.R;
 import com.mad.mylibrary.OrderItem;
 
@@ -80,7 +81,7 @@ public class Confirm extends AppCompatActivity {
                     dishes.put(key, Integer.parseInt(nums.get(keys.indexOf(key))));
                 }
                 String keyOrder = myRef2.push().getKey(); //key dell'ordine generata
-                order.put(keyOrder, new OrderItem(key,user.addr,tot, STATUS_UNKNOWN, dishes,time));
+                order.put(keyOrder, new OrderCustomerItem(key,user.addr,tot, dishes,time,STATUS_UNKNOWN, true));
                 myRef2.updateChildren(order);
 
                 //Push sul database per ristoratore

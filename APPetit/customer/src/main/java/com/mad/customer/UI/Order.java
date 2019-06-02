@@ -24,9 +24,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.mad.customer.Items.OrderCustomerItem;
 import com.mad.customer.R;
 import com.mad.customer.ViewHolders.OrderViewHolder;
-import com.mad.mylibrary.OrderItem;
+
 
 import static com.mad.mylibrary.SharedClass.CUSTOMER_PATH;
 import static com.mad.mylibrary.SharedClass.ROOT_UID;
@@ -45,13 +46,13 @@ import static com.mad.mylibrary.SharedClass.user;
 
 public class Order extends Fragment {
     private RecyclerView recyclerView;
-    private FirebaseRecyclerAdapter<OrderItem, OrderViewHolder> mAdapter;
+    private FirebaseRecyclerAdapter<OrderCustomerItem, OrderViewHolder> mAdapter;
     private RecyclerView.LayoutManager layoutManager;
     private RecyclerView recyclerView_ordered;
-    private static FirebaseRecyclerOptions<OrderItem> options =
-            new FirebaseRecyclerOptions.Builder<OrderItem>()
+    private static FirebaseRecyclerOptions<OrderCustomerItem> options =
+            new FirebaseRecyclerOptions.Builder<OrderCustomerItem>()
                     .setQuery(FirebaseDatabase.getInstance().getReference(CUSTOMER_PATH).child(ROOT_UID).child("orders"),
-                            OrderItem.class).build();
+                            OrderCustomerItem.class).build();
 
     private Order.OnFragmentInteractionListener mListener;
 
@@ -65,7 +66,7 @@ public class Order extends Fragment {
         View view = inflater.inflate(R.layout.fragment_order, container, false);
 
         recyclerView = view.findViewById(R.id.ordered_list);
-        mAdapter = new FirebaseRecyclerAdapter<OrderItem, OrderViewHolder>(options) {
+        mAdapter = new FirebaseRecyclerAdapter<OrderCustomerItem, OrderViewHolder>(options) {
             @NonNull
             @Override
             public OrderViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
@@ -74,8 +75,9 @@ public class Order extends Fragment {
             }
 
             @Override
-            protected void onBindViewHolder(@NonNull OrderViewHolder holder, int position, @NonNull OrderItem model) {
-                holder.setData(model, position);
+            protected void onBindViewHolder(@NonNull OrderViewHolder holder, int position, @NonNull OrderCustomerItem model) {
+                String orderkey = getRef(position).getKey();
+                holder.setData(model, position, orderkey);
                 holder.getView().findViewById(R.id.order_details_button).setOnClickListener(a->{
                     Intent intent = new Intent(getContext(), OrderDetails.class);
                     intent.putExtra("order_item", model);
