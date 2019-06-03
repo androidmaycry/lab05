@@ -102,7 +102,7 @@ public class Restaurant extends Fragment {
             @Override
             public RestaurantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.restaurant_item,parent,false);
-                return new RestaurantViewHolder(view);
+                return new RestaurantViewHolder(view,getContext());
             }
         };
 
@@ -144,7 +144,7 @@ public class Restaurant extends Fragment {
                             @Override
                             public RestaurantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                                 View view1 = LayoutInflater.from(parent.getContext()).inflate(R.layout.restaurant_item,parent,false);
-                                return new RestaurantViewHolder(view1);
+                                return new RestaurantViewHolder(view1,getContext());
                             }
 
                         };
@@ -264,7 +264,7 @@ public class Restaurant extends Fragment {
                     @Override
                     public RestaurantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.restaurant_item,parent,false);
-                        return new RestaurantViewHolder(view);
+                        return new RestaurantViewHolder(view,getContext());
                     }
                 };
                 recyclerView.setAdapter(mAdapter);
@@ -343,7 +343,7 @@ public class Restaurant extends Fragment {
             @Override
             public RestaurantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.restaurant_item,parent,false);
-                return new RestaurantViewHolder(view);
+                return new RestaurantViewHolder(view,getContext());
             }
         };
         recyclerView.setAdapter(mAdapter);
