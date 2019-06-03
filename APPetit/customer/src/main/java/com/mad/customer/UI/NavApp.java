@@ -226,7 +226,7 @@ public class NavApp extends AppCompatActivity implements
 
     @Override
     protected void onResume() {
-        onRefuseOrder();
+        //onRefuseOrder();
         super.onResume();
     }
 

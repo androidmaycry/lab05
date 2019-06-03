@@ -7,9 +7,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.mad.customer.UI.Ordering;
 import com.mad.customer.R;
 import com.mad.mylibrary.Restaurateur;
+
+import java.util.HashMap;
+import java.util.UUID;
+
+import static com.mad.mylibrary.SharedClass.CUSTOMER_PATH;
 
 public class RestaurantViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
@@ -42,6 +49,16 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder implements Vie
         }
         this.current = current;
         this.key = key;
+
+        itemView.findViewById(R.id.star_favorite).setOnClickListener(e ->{
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference(CUSTOMER_PATH).child("favorite");
+            HashMap<String,Object> favorite_restaurant = new HashMap<String,Object>();
+            favorite_restaurant.put(UUID.randomUUID().toString(),current);
+
+            ref.updateChildren(favorite_restaurant);
+            ImageView start = itemView.findViewById(R.id.star_favorite);
+            start.setImageResource(R.drawable.heart_fill);
+        });
 
     }
 
