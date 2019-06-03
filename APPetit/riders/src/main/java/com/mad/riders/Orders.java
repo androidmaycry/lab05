@@ -21,6 +21,7 @@ import com.google.maps.PendingResult;
 import com.google.maps.internal.PolylineEncoding;
 import com.google.maps.model.DirectionsResult;
 import com.google.maps.model.DirectionsRoute;
+import com.google.maps.model.Distance;
 import com.mad.mylibrary.OrderItem;
 
 import android.Manifest;
@@ -52,13 +53,20 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.mad.mylibrary.OrderRiderItem;
+import com.mad.mylibrary.Position;
+import com.mad.mylibrary.Restaurateur;
 
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -81,7 +89,7 @@ public class Orders extends Fragment implements OnMapReadyCallback {
 
     private  boolean available;
     private boolean restaurantReached;
-    private OrderItem order;
+    private OrderRiderItem order;
 
     private DatabaseReference query1;
     private FusedLocationProviderClient mFusedLocationClient;
@@ -91,6 +99,12 @@ public class Orders extends Fragment implements OnMapReadyCallback {
     private ScrollView mScrollView;
     private DatabaseReference query;
     private ValueEventListener listenerQuery;
+    private FirebaseDatabase database;
+    private LatLng latLng_restaurant;
+    private Restaurateur restaurateur;
+    private LatLng pos_restaurant;
+    private Long distance;
+    private String orderKey;
 
     public Orders() {
         // Required empty public constructor
@@ -173,29 +187,24 @@ public class Orders extends Fragment implements OnMapReadyCallback {
             }
         });
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        database = FirebaseDatabase.getInstance();
         query = database
-                .getReference(RIDERS_PATH + "/"+ROOT_UID+"/pending/");
+                .getReference(RIDERS_PATH + "/" + ROOT_UID + "/pending/");
 
         listenerQuery = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
                 for(DataSnapshot d : dataSnapshot.getChildren()) {
-                    order = d.getValue(OrderItem.class);
-                    setOrderView(view,order);
-                    String restaurantAddr = order.getAddrCustomer();
+                    orderKey = d.getKey();
+                    order = d.getValue(OrderRiderItem.class);
+                    setOrderView(view, order);
+                    String restaurantAddress = order.getAddrRestaurant();
                     String customerAddress = order.getAddrCustomer();
                     Log.d("QUERY", customerAddress);
-                    Log.d("QUERY", restaurantAddr);
 
-                    if(order.getAddrCustomer().compareTo("")!= 0) {
-                        restaurantAddr = restaurantAddr + " Torino";
-
-                        LatLng restaurantPos = getLocationFromAddress(restaurantAddr);
-                        getLastKnownLocation(restaurantPos);
-                        b.setEnabled(true);
-                    }
+                    pos_restaurant = getLocationFromAddress(restaurantAddress);
+                    getLastKnownLocation(pos_restaurant);
+                    b.setEnabled(true);
                 }
             }
 
@@ -244,7 +253,7 @@ public class Orders extends Fragment implements OnMapReadyCallback {
         reservationDialog.show();
     }
 
-    private void setOrderView(View view,OrderItem order)
+    private void setOrderView(View view,OrderRiderItem order)
     {
         TextView r_addr = view.findViewById(R.id.restaurant_text);
         TextView c_addr = view.findViewById(R.id.customer_text);
@@ -253,7 +262,7 @@ public class Orders extends Fragment implements OnMapReadyCallback {
 
         r_addr.setText(order.getAddrRestaurant());
         c_addr.setText(order.getAddrCustomer());
-        time_text.setText(order.getTime());
+        time_text.setText(order.getTime().toString());
         cash_text.setText(order.getTotPrice() + "$");
     }
 
@@ -326,7 +335,30 @@ public class Orders extends Fragment implements OnMapReadyCallback {
             Map<String, Object> status = new HashMap<String, Object>();
             status.put("available", true);
             query2.updateChildren(status);
+
+            //SET STATUS TO CUSTOMER ORDER
+            DatabaseReference refCustomerOrder = FirebaseDatabase.getInstance()
+                    .getReference().child(CUSTOMER_PATH + "/" + order.getKeyCustomer()).child("orders").child(orderKey);
+            HashMap<String, Object> order = new HashMap<>();
+            order.put("status", STATUS_DELIVERING);
+            refCustomerOrder.updateChildren(order);
             mMap.clear();
+
+            //TODO: save distance
+            DatabaseReference query3 = FirebaseDatabase.getInstance()
+                    .getReference(RIDERS_PATH + "/" + ROOT_UID).child("delivered");
+
+            Map<String,Object> delivered = new HashMap<>();
+            delivered.put(UUID.randomUUID().toString(),distance);
+
+            distance = Long.valueOf(0);
+
+            //SET STATUS TO CUSTOMER
+            //DatabaseReference refCustomerOrder = FirebaseDatabase.getInstance()
+                    //.getReference().child(CUSTOMER_PATH + "/" + customerId).child("orders").child(orderId);
+            HashMap<String, Object> order_map = new HashMap<>();
+            order.put("status", STATUS_DELIVERED);
+            //refCustomerOrder.updateChildren(order);
             reservationDialog.dismiss();
         });
 
@@ -339,38 +371,6 @@ public class Orders extends Fragment implements OnMapReadyCallback {
 
         reservationDialog.show();
     }
-
-    /*
-    public void deletingOrder(){
-
-        AlertDialog reservationDialog = new AlertDialog.Builder(this.getContext()).create();
-        LayoutInflater inflater = LayoutInflater.from(this.getContext());
-        final View view = inflater.inflate(R.layout.reservation_dialog, null);
-
-
-        view.findViewById(R.id.button_confirm).setOnClickListener(e ->{
-            if(!available){
-                Toast.makeText(getContext(),"You can't remove order now!",Toast.LENGTH_LONG)
-                        .show();
-            }
-            else {
-                DatabaseReference query = FirebaseDatabase.getInstance()
-                        .getReference(RIDERS_PATH + "/" + ROOT_UID + "/pending/");
-                query.removeValue();
-                reservationDialog.dismiss();
-            }
-            reservationDialog.dismiss();
-        });
-
-        view.findViewById(R.id.button_cancel).setOnClickListener(e ->{
-            reservationDialog.dismiss();
-        });
-
-        reservationDialog.setView(view);
-        reservationDialog.setTitle("Refuse Order?");
-
-        reservationDialog.show();
-    }*/
 
     @Override
     public void onAttach(Context context) {
@@ -492,13 +492,29 @@ public class Orders extends Fragment implements OnMapReadyCallback {
                 Marker finalMarker =mMap.addMarker(new MarkerOptions()
                         .position(finalPos)
                         //TODO: FIX NAME
-                        .title("RISTORANTE BARDONECCHIA")
+                        .title("NAME")
                         .snippet("Duration: " + route.legs[0].duration
                         ));
+                //distance += route.legs[0].distance.inMeters;
             }
         });
     }
 
+    private String getDateFromTimestamp(Long timestamp){
+        Date d = new Date(timestamp);
+        Calendar c = Calendar.getInstance();
+        c.setTime(d);
+        int hourValue = c.get(Calendar.HOUR);
+        int minValue =c.get(Calendar.MINUTE);
+        String hourString = Integer.toString(hourValue), minString = Integer.toString(minValue);
+
+        if(hourValue < 10)
+            hourString = "0" + hourValue;
+        if(minValue < 10)
+            minString = "0" + minValue;
+
+        return hourString + ":" + minString;
+    }
 
     //Other functions
     public LatLng getLocationFromAddress(String strAddress) {

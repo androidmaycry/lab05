@@ -16,9 +16,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.mad.customer.Adapters.OrderDetailsRecyclerAdapter;
+import com.mad.customer.Items.OrderCustomerItem;
 import com.mad.customer.R;
-import com.mad.mylibrary.OrderItem;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -31,7 +30,7 @@ import static com.mad.mylibrary.SharedClass.*;
 
 public class OrderDetails extends AppCompatActivity {
 
-    private OrderItem item;
+    private OrderCustomerItem item;
     private RecyclerView recyclerView;
     private OrderDetailsRecyclerAdapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
@@ -41,7 +40,7 @@ public class OrderDetails extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order_details);
-        item = (OrderItem) getIntent().getSerializableExtra("order_item");
+        item = (OrderCustomerItem) getIntent().getSerializableExtra("order_item");
         insertItems ();
         insertRecyclerView();
 
