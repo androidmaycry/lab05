@@ -94,6 +94,9 @@ public class Confirm extends AppCompatActivity {
                 myRef1.updateChildren(orderMap);
 
                 //Aggiungo nella lista ordini da tracciare
+                if(orderToTrack==null){
+                    orderToTrack=new HashMap<>();
+                }
                 orderToTrack.put(keyOrder, STATUS_UNKNOWN);
 
                 Toast.makeText(this, "Order confirmed", Toast.LENGTH_LONG).show();

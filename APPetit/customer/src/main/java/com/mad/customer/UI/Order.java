@@ -99,6 +99,7 @@ public class Order extends Fragment {
         mAdapter.startListening();
     }
 
+
     @Override
     public void onStop() {
         super.onStop();

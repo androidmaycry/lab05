@@ -93,6 +93,7 @@ public class NavApp extends AppCompatActivity implements
                     new Restaurant()).commit();
         }
         //Get the hashMap from sharedPreferences
+
         order_to_listen = this.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE);
         Gson gson = new Gson();
         String storedHashMapString = order_to_listen.getString("HashMap",null);
@@ -126,40 +127,42 @@ public class NavApp extends AppCompatActivity implements
 
     private void onRefuseOrder (){
 
-        for(HashMap.Entry<String, Integer> entry : orderToTrack.entrySet()){
-            Query query = FirebaseDatabase.getInstance().getReference(CUSTOMER_PATH).child(ROOT_UID).child("orders").child(entry.getKey());
-            query.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.exists()) {
-                        Long changed_statusi = (Long) dataSnapshot.child("status").getValue();
-                        Integer changed_status = changed_statusi.intValue();
-                        if(!changed_status.equals(entry.getValue())) {
-                            if (changed_status == STATUS_DISCARDED) {
-                                entry.setValue(changed_status);
-                                orderToTrack.replace(entry.getKey(), changed_status);
-                                showAlertDialogDiscarded((String)dataSnapshot.child("key").getValue(), dataSnapshot.getKey());
-                            }
-                            else if (changed_status==STATUS_DELIVERING){
-                                entry.setValue(changed_status);
-                                orderToTrack.replace(entry.getKey(), changed_status);
+        if(orderToTrack!=null){
+            for(HashMap.Entry<String, Integer> entry : orderToTrack.entrySet()){
+                Query query = FirebaseDatabase.getInstance().getReference(CUSTOMER_PATH).child(ROOT_UID).child("orders").child(entry.getKey());
+                query.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            Long changed_statusi = (Long) dataSnapshot.child("status").getValue();
+                            Integer changed_status = changed_statusi.intValue();
+                            if(!changed_status.equals(entry.getValue())) {
+                                if (changed_status == STATUS_DISCARDED) {
+                                    entry.setValue(changed_status);
+                                    orderToTrack.replace(entry.getKey(), changed_status);
+                                    showAlertDialogDiscarded((String)dataSnapshot.child("key").getValue(), dataSnapshot.getKey());
+                                }
+                                else if (changed_status==STATUS_DELIVERING){
+                                    entry.setValue(changed_status);
+                                    orderToTrack.replace(entry.getKey(), changed_status);
 
-                            }
-                            else if (changed_status==STATUS_DELIVERED){
-                                entry.setValue(changed_status);
-                                orderToTrack.replace(entry.getKey(), changed_status);
-                                setRated(dataSnapshot.getKey(), false);
-                                showAlertDialogDelivered((String)dataSnapshot.child("key").getValue(), dataSnapshot.getKey());
+                                }
+                                else if (changed_status==STATUS_DELIVERED){
+                                    entry.setValue(changed_status);
+                                    orderToTrack.replace(entry.getKey(), changed_status);
+                                    setRated(dataSnapshot.getKey(), false);
+                                    showAlertDialogDelivered((String)dataSnapshot.child("key").getValue(), dataSnapshot.getKey());
+                                }
                             }
                         }
                     }
-                }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                }
-            });
+                    }
+                });
+            }
         }
     }
 
@@ -216,14 +219,15 @@ public class NavApp extends AppCompatActivity implements
                         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO + "/" + resKey).child("review");
                         HashMap<String, Object> review = new HashMap<>();
                         String comment = ((EditText)view.findViewById(R.id.dialog_rating_feedback)).getText().toString();
+                        String rate_key = myRef.push().getKey();
                         if(!comment.isEmpty()){
                             setRated(orderKey, true);
-                            review.put(myRef.push().getKey(), new ReviewItem(smileRating.getRating(), comment));
+                            review.put(rate_key, new ReviewItem(smileRating.getRating(), comment, ROOT_UID, user.getPhotoPath(), user.getName()));
                             myRef.updateChildren(review);
                         }
                         else{
                             setRated(orderKey, true);
-                            review.put(ROOT_UID, new ReviewItem(smileRating.getRating(), null));
+                            review.put(rate_key, new ReviewItem(smileRating.getRating(), null, ROOT_UID, user.getPhotoPath(), user.getName()));
                             myRef.updateChildren(review);
                         }
                         Toast.makeText(getApplicationContext(), "Thanks for your review!", Toast.LENGTH_LONG).show();
@@ -235,7 +239,7 @@ public class NavApp extends AppCompatActivity implements
                 });
                 view.findViewById(R.id.dialog_rating_button_negative).setOnClickListener(b->{
                     alertDialog.dismiss();
-                });
+            });
                 alertDialog.show();
             }
 

@@ -35,6 +35,7 @@ import static com.mad.mylibrary.SharedClass.STATUS_DELIVERED;
 import static com.mad.mylibrary.SharedClass.STATUS_DELIVERING;
 import static com.mad.mylibrary.SharedClass.STATUS_DISCARDED;
 import static com.mad.mylibrary.SharedClass.STATUS_UNKNOWN;
+import static com.mad.mylibrary.SharedClass.user;
 
 public class OrderViewHolder extends RecyclerView.ViewHolder{
     private TextView name, date, delivery, total;
@@ -138,13 +139,13 @@ public class OrderViewHolder extends RecyclerView.ViewHolder{
                         if(!comment.isEmpty()){
                             rated.put("rated", true);
                             myRef2.updateChildren(rated);
-                            review.put(myRef.push().getKey(), new ReviewItem(smileRating.getRating(), comment));
+                            review.put(myRef.push().getKey(), new ReviewItem(smileRating.getRating(), comment, ROOT_UID, user.getPhotoPath(), user.getName()));
                             myRef.updateChildren(review);
                         }
                         else{
                             rated.put("rated", true);
                             myRef2.updateChildren(rated);
-                            review.put(ROOT_UID, new ReviewItem(smileRating.getRating(), null));
+                            review.put(myRef.push().getKey(), new ReviewItem(smileRating.getRating(), null, ROOT_UID, user.getPhotoPath(), user.getName()));
                             myRef.updateChildren(review);
                         }
                         Toast.makeText(view.getContext(), "Thanks for your review!", Toast.LENGTH_LONG).show();

@@ -7,8 +7,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.mad.customer.UI.Ordering;
 import com.mad.customer.R;
+import com.mad.customer.UI.TabApp;
 import com.mad.mylibrary.Restaurateur;
 
 public class RestaurantViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
@@ -47,14 +47,8 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder implements Vie
 
     @Override
     public void onClick(View view) {
-        Intent intent = new Intent(view.getContext(), Ordering.class);
-        intent.putExtra("name", current.getName());
-        intent.putExtra("addr", current.getAddr());
-        intent.putExtra("cell", current.getPhone());
-        intent.putExtra("cuisine", current.getCuisine());
-        intent.putExtra("email", current.getMail());
-        intent.putExtra("opening", current.getOpeningTime());
-        intent.putExtra("img", current.getPhotoUri());
+        Intent intent = new Intent(view.getContext(), TabApp.class);
+        intent.putExtra("res_item", current);
         intent.putExtra("key", this.key);
         view.getContext().startActivity(intent);
     }
