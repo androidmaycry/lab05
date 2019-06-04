@@ -18,6 +18,7 @@ import com.mad.customer.R;
 import com.mad.mylibrary.Restaurateur;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.UUID;
 
 import static com.mad.mylibrary.SharedClass.CUSTOMER_PATH;
@@ -33,7 +34,8 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder implements Vie
     private Restaurateur current;
     private String key;
     private Context context;
-    private boolean favorite_bool;
+    private boolean favorite_bool,favorite_visible;
+    private LinkedList<String> list_favorite;
 
     public RestaurantViewHolder(View itemView, Context context){
         super(itemView);
@@ -44,6 +46,7 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder implements Vie
         opening = itemView.findViewById(R.id.listview_opening);
         this.context = context;
         favorite_bool = false;
+        favorite_visible = false;
         itemView.setOnClickListener(this);
     }
 
@@ -59,29 +62,43 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder implements Vie
         this.key = key;
         Drawable d;
         ImageView favorite = itemView.findViewById(R.id.star_favorite);
-        favorite.setOnClickListener(e ->{
-            DatabaseReference ref = FirebaseDatabase.getInstance().getReference(CUSTOMER_PATH).child(ROOT_UID).child("favorite");
-            if (favorite_bool) {
-                ref.child(key).removeValue();
-                ImageView start = itemView.findViewById(R.id.star_favorite);
-                start.setImageResource(R.drawable.heart);
-                favorite_bool = false;
+        if(favorite_visible) {
 
-                Toast.makeText(context,"Removed from favorite",
-                        Toast.LENGTH_SHORT).show();
-            } else {
-                HashMap<String, Object> favorite_restaurant = new HashMap<String, Object>();
-                favorite_restaurant.put(key, current);
-
-                ref.updateChildren(favorite_restaurant);
-                ImageView start = itemView.findViewById(R.id.star_favorite);
-                start.setImageResource(R.drawable.heart_fill);
-                favorite_bool = true;
-
-                Toast.makeText(context,"Added to favourite",
-                        Toast.LENGTH_SHORT).show();
+            for(String key_res : list_favorite){
+                if(key_res.compareTo(key) == 0){
+                    favorite_bool = true;
+                    ImageView start = itemView.findViewById(R.id.star_favorite);
+                    start.setImageResource(R.drawable.heart_fill);
+                }
             }
-        });
+
+            favorite.setOnClickListener(e -> {
+                DatabaseReference ref = FirebaseDatabase.getInstance().getReference(CUSTOMER_PATH).child(ROOT_UID).child("favorite");
+                if (favorite_bool) {
+                    ref.child(key).removeValue();
+                    ImageView start = itemView.findViewById(R.id.star_favorite);
+                    start.setImageResource(R.drawable.heart);
+                    favorite_bool = false;
+
+                    Toast.makeText(context, "Removed from favorite",
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    HashMap<String, Object> favorite_restaurant = new HashMap<String, Object>();
+                    favorite_restaurant.put(key, current);
+
+                    ref.updateChildren(favorite_restaurant);
+                    ImageView start = itemView.findViewById(R.id.star_favorite);
+                    start.setImageResource(R.drawable.heart_fill);
+                    favorite_bool = true;
+
+                    Toast.makeText(context, "Added to favourite",
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+        else{
+            favorite.setVisibility(View.INVISIBLE);
+        }
 
     }
 
@@ -97,5 +114,10 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder implements Vie
         intent.putExtra("img", current.getPhotoUri());
         intent.putExtra("key", this.key);
         view.getContext().startActivity(intent);
+    }
+
+    public void setFavorite(LinkedList<String> favorite){
+        list_favorite = favorite;
+        favorite_visible = true;
     }
 }

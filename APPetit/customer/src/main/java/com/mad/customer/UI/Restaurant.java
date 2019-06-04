@@ -3,6 +3,7 @@ package com.mad.customer.UI;
 import static com.mad.mylibrary.SharedClass.*;
 import com.firebase.ui.database.SnapshotParser;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.mad.customer.R;
@@ -33,6 +34,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashSet;
+import java.util.LinkedList;
 
 public class Restaurant extends Fragment {
 
@@ -91,20 +93,45 @@ public class Restaurant extends Fragment {
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
 
-        mAdapter = new FirebaseRecyclerAdapter<Restaurateur, RestaurantViewHolder>(options) {
+        DatabaseReference fav_ref = FirebaseDatabase
+                .getInstance().getReference(CUSTOMER_PATH)
+                .child(ROOT_UID).child("favorite");
+        fav_ref.addValueEventListener(new ValueEventListener() {
             @Override
-            protected void onBindViewHolder(@NonNull RestaurantViewHolder holder, int position, @NonNull Restaurateur model) {
-                String key = getRef(position).getKey();
-                holder.setData(model, position, key);
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                LinkedList<String> keys_favorite_restaurant = new LinkedList<>();
+
+                for(DataSnapshot d : dataSnapshot.getChildren()){
+                    keys_favorite_restaurant.add(d.getKey());
+                }
+
+                mAdapter = new FirebaseRecyclerAdapter<Restaurateur, RestaurantViewHolder>(options) {
+                    @Override
+                    protected void onBindViewHolder(@NonNull RestaurantViewHolder holder, int position, @NonNull Restaurateur model) {
+                        String key = getRef(position).getKey();
+                        holder.setData(model, position, key);
+                    }
+
+                    @NonNull
+                    @Override
+                    public RestaurantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.restaurant_item,parent,false);
+                        RestaurantViewHolder resViewHolder = new RestaurantViewHolder(view,getContext());
+                        resViewHolder.setFavorite(keys_favorite_restaurant);
+
+                        return resViewHolder;
+                    }
+                };
             }
 
-            @NonNull
             @Override
-            public RestaurantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.restaurant_item,parent,false);
-                return new RestaurantViewHolder(view,getContext());
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
             }
-        };
+        });
+
+
 
         recyclerView.setAdapter(mAdapter);
 
