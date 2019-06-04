@@ -45,6 +45,7 @@ public class Restaurant extends Fragment {
     private HashSet<Chip> chips = new HashSet<>();
     private ChipGroup entryChipGroup;
     private boolean flag = true;
+    LinkedList<String> keys_favorite_restaurant;
 
 
     private static FirebaseRecyclerOptions<Restaurateur> options =
@@ -100,29 +101,11 @@ public class Restaurant extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                LinkedList<String> keys_favorite_restaurant = new LinkedList<>();
+                keys_favorite_restaurant = new LinkedList<>();
 
                 for(DataSnapshot d : dataSnapshot.getChildren()){
                     keys_favorite_restaurant.add(d.getKey());
                 }
-
-                mAdapter = new FirebaseRecyclerAdapter<Restaurateur, RestaurantViewHolder>(options) {
-                    @Override
-                    protected void onBindViewHolder(@NonNull RestaurantViewHolder holder, int position, @NonNull Restaurateur model) {
-                        String key = getRef(position).getKey();
-                        holder.setData(model, position, key);
-                    }
-
-                    @NonNull
-                    @Override
-                    public RestaurantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.restaurant_item,parent,false);
-                        RestaurantViewHolder resViewHolder = new RestaurantViewHolder(view,getContext());
-                        resViewHolder.setFavorite(keys_favorite_restaurant);
-
-                        return resViewHolder;
-                    }
-                };
             }
 
             @Override
@@ -130,6 +113,24 @@ public class Restaurant extends Fragment {
 
             }
         });
+
+        mAdapter = new FirebaseRecyclerAdapter<Restaurateur, RestaurantViewHolder>(options) {
+            @Override
+            protected void onBindViewHolder(@NonNull RestaurantViewHolder holder, int position, @NonNull Restaurateur model) {
+                String key = getRef(position).getKey();
+                holder.setData(model, position, key);
+            }
+
+            @NonNull
+            @Override
+            public RestaurantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.restaurant_item,parent,false);
+                RestaurantViewHolder resViewHolder = new RestaurantViewHolder(view,getContext());
+                resViewHolder.setFavorite(keys_favorite_restaurant);
+
+                return resViewHolder;
+            }
+        };
 
 
 
@@ -381,6 +382,7 @@ public class Restaurant extends Fragment {
     public void onStart() {
         super.onStart();
         mAdapter.startListening();
+
     }
     @Override
     public void onStop() {
