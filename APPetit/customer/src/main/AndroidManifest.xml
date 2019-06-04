@@ -15,11 +15,12 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="APPetit"
-        tools:replace="android:label"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".UI.OrderDetails"></activity>
+        android:theme="@style/AppTheme"
+        tools:replace="android:label">
+        <activity android:name=".UI.TabApp"></activity>
+        <activity android:name=".UI.OrderDetails" />
         <activity android:name=".UI.SignUp" />
         <activity android:name=".UI.Confirm" />
         <activity android:name=".UI.EditProfile" />
