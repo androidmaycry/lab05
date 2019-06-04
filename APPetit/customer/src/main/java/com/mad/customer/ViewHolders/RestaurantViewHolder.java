@@ -67,7 +67,7 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder implements Vie
                 start.setImageResource(R.drawable.heart);
                 favorite_bool = false;
 
-                Toast.makeText(context,"Remove from favorite",
+                Toast.makeText(context,"Removed from favorite",
                         Toast.LENGTH_SHORT).show();
             } else {
                 HashMap<String, Object> favorite_restaurant = new HashMap<String, Object>();
@@ -78,7 +78,7 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder implements Vie
                 start.setImageResource(R.drawable.heart_fill);
                 favorite_bool = true;
 
-                Toast.makeText(context,"Added to favorite",
+                Toast.makeText(context,"Added to favourite",
                         Toast.LENGTH_SHORT).show();
             }
         });
