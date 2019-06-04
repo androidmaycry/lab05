@@ -81,12 +81,15 @@ public class Home extends Fragment {
         database.getReference(RIDERS_PATH).child(ROOT_UID).child("delivered").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                /*
-                if(dataSnapshot.getKey()!= null) {
-                    distance = (Long) dataSnapshot.getValue();
+
+                for(DataSnapshot d : dataSnapshot.getChildren()) {
+
+                    distance = (Long) d.getValue();
                     Button b = view.findViewById(R.id.button_distance);
-                    b.setText(distance.toString());
-                }*/
+
+                    b.setText(Long.toString(distance) + "meters");
+                }
+
             }
 
             @Override
