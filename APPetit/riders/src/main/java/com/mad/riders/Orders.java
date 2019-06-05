@@ -338,7 +338,7 @@ public class Orders extends Fragment implements OnMapReadyCallback {
 
             //SET STATUS TO CUSTOMER ORDER
             DatabaseReference refCustomerOrder = FirebaseDatabase.getInstance()
-                    .getReference().child(CUSTOMER_PATH + "/" + order.getKeyCustomer()).child("orders").child(orderKey);
+                    .getReference().child(CUSTOMER_PATH).child(order.getKeyCustomer()).child("orders").child(orderKey);
             HashMap<String, Object> order_status = new HashMap<>();
             order_status.put("status", STATUS_DELIVERED);
             refCustomerOrder.updateChildren(order_status);
@@ -351,7 +351,7 @@ public class Orders extends Fragment implements OnMapReadyCallback {
             Map<String,Object> delivered = new HashMap<>();
             delivered.put(UUID.randomUUID().toString(),distance);
 
-            distance = Long.valueOf(0);
+            distance = 0L;
 
             reservationDialog.dismiss();
         });
@@ -489,7 +489,7 @@ public class Orders extends Fragment implements OnMapReadyCallback {
                         .title("NAME")
                         .snippet("Duration: " + route.legs[0].duration
                         ));
-                distance = route.legs[0].distance.inMeters;
+                distance += route.legs[0].distance.inMeters;
             }
         });
     }
