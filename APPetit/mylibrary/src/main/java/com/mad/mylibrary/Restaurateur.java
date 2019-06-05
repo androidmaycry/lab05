@@ -1,7 +1,9 @@
 package com.mad.mylibrary;
 
-public final class Restaurateur{
-    public String mail, name, addr, cuisine, openingTime, phone, photoUri;
+import java.io.Serializable;
+
+public final class Restaurateur implements Serializable {
+    private String mail, name, addr, cuisine, openingTime, phone, photoUri ;
 
     public Restaurateur() {
         this.mail = "";
