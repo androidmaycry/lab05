@@ -198,7 +198,7 @@ public class Orders extends Fragment implements OnMapReadyCallback {
                     orderKey = d.getKey();
                     order = d.getValue(OrderRiderItem.class);
                     setOrderView(view, order);
-                    String restaurantAddress = order.getAddrRestaurant();
+                    String restaurantAddress = order.getAddrRestaurant() + ",Torino";
                     String customerAddress = order.getAddrCustomer();
                     Log.d("QUERY", customerAddress);
 
@@ -217,7 +217,7 @@ public class Orders extends Fragment implements OnMapReadyCallback {
             }
         };
 
-        query.addValueEventListener(listenerQuery);
+        query.addListenerForSingleValueEvent(listenerQuery);
         
         return view;
     }
@@ -338,10 +338,10 @@ public class Orders extends Fragment implements OnMapReadyCallback {
 
             //SET STATUS TO CUSTOMER ORDER
             DatabaseReference refCustomerOrder = FirebaseDatabase.getInstance()
-                    .getReference().child(CUSTOMER_PATH + "/" + order.getKeyCustomer()).child("orders").child(orderKey);
-            HashMap<String, Object> order = new HashMap<>();
-            order.put("status", STATUS_DELIVERING);
-            refCustomerOrder.updateChildren(order);
+                    .getReference().child(CUSTOMER_PATH).child(order.getKeyCustomer()).child("orders").child(orderKey);
+            HashMap<String, Object> order_status = new HashMap<>();
+            order_status.put("status", STATUS_DELIVERED);
+            refCustomerOrder.updateChildren(order_status);
             mMap.clear();
 
             //TODO: save distance
@@ -351,14 +351,8 @@ public class Orders extends Fragment implements OnMapReadyCallback {
             Map<String,Object> delivered = new HashMap<>();
             delivered.put(UUID.randomUUID().toString(),distance);
 
-            distance = Long.valueOf(0);
+            distance = 0L;
 
-            //SET STATUS TO CUSTOMER
-            //DatabaseReference refCustomerOrder = FirebaseDatabase.getInstance()
-                    //.getReference().child(CUSTOMER_PATH + "/" + customerId).child("orders").child(orderId);
-            HashMap<String, Object> order_map = new HashMap<>();
-            order.put("status", STATUS_DELIVERED);
-            //refCustomerOrder.updateChildren(order);
             reservationDialog.dismiss();
         });
 
@@ -495,7 +489,7 @@ public class Orders extends Fragment implements OnMapReadyCallback {
                         .title("NAME")
                         .snippet("Duration: " + route.legs[0].duration
                         ));
-                //distance += route.legs[0].distance.inMeters;
+                distance += route.legs[0].distance.inMeters;
             }
         });
     }

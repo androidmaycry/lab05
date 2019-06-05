@@ -65,15 +65,21 @@ public class NavApp extends AppCompatActivity implements
         switch (item.getItemId()) {
             case R.id.navigation_home:
                 //onRefuseOrder();
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Restaurant()).commit();
+                if(!(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof Restaurant)) {
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Restaurant()).commit();
+                }
                 return true;
             case R.id.navigation_profile:
                 //onRefuseOrder();
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Profile()).commit();
+                if(!(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof Profile)) {
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Profile()).commit();
+                }
                 return true;
             case R.id.navigation_reservation:
                 //onRefuseOrder();
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Order()).commit();
+                if(!(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof Order)) {
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Order()).commit();
+                }
                 return true;
         }
         return false;

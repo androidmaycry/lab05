@@ -59,30 +59,37 @@ public class FragmentManager extends AppCompatActivity implements
 
         switch (item.getItemId()) {
             case R.id.navigation_home:
-                checkBadge();
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Home()).commit();
+                if(!(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof Home)) {
+                    checkBadge();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Home()).commit();
+                }
                 return true;
 
             case R.id.navigation_profile:
+                if(!(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof Profile)) {
                 Bundle bundle = new Bundle();
                 bundle.putString("UID",ROOT_UID);
                 Profile profile = new Profile();
                 profile.setArguments(bundle);
                 checkBadge();
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, profile).commit();
+
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, profile).commit();
+                }
                 return true;
 
             case R.id.navigation_reservation:
-                Bundle bundle2 = new Bundle();
-                bundle2.putString("UID",ROOT_UID);
-                if(value)
-                    bundle2.putString("STATUS","true");
-                else
-                    bundle2.putString("STATUS","false");
-                Orders orders = new Orders();
-                orders.setArguments(bundle2);
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, orders).commit();
-                hideBadgeView();
+                if(!(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof Orders)) {
+                    Bundle bundle2 = new Bundle();
+                    bundle2.putString("UID", ROOT_UID);
+                    if (value)
+                        bundle2.putString("STATUS", "true");
+                    else
+                        bundle2.putString("STATUS", "false");
+                    Orders orders = new Orders();
+                    orders.setArguments(bundle2);
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, orders).commit();
+                    hideBadgeView();
+                }
                 return true;
         }
         return false;
