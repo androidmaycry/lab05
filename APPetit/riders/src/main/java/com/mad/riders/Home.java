@@ -67,6 +67,7 @@ public class Home extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        distance = 0L;
     }
 
     @Override
@@ -84,11 +85,12 @@ public class Home extends Fragment {
 
                 for(DataSnapshot d : dataSnapshot.getChildren()) {
 
-                    distance = (Long) d.getValue();
-                    Button b = view.findViewById(R.id.button_distance);
+                    distance += (Long) d.getValue();
 
-                    b.setText(Long.toString(distance) + "meters");
                 }
+                Button b = view.findViewById(R.id.button_distance);
+
+                b.setText(Long.toString(distance) + "meters");
 
             }
 

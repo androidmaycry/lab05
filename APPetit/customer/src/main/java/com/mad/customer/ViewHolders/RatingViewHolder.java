@@ -42,5 +42,6 @@ public class RatingViewHolder extends RecyclerView.ViewHolder {
         if(!ri.getImg().isEmpty() && ri.getImg()!=null && !ri.getImg().equals("null")){
             Glide.with(view.getContext()).load(ri.getImg()).into(img);
         }
+        ratingBar.setRating(ri.getStars());
     }
 }

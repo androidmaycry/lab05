@@ -123,8 +123,7 @@ public class Orders extends Fragment implements OnMapReadyCallback {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
+        distance = 0L;
     }
 
     @Override
@@ -344,12 +343,12 @@ public class Orders extends Fragment implements OnMapReadyCallback {
             refCustomerOrder.updateChildren(order_status);
             mMap.clear();
 
-            //TODO: save distance
             DatabaseReference query3 = FirebaseDatabase.getInstance()
                     .getReference(RIDERS_PATH + "/" + ROOT_UID).child("delivered");
 
             Map<String,Object> delivered = new HashMap<>();
             delivered.put(UUID.randomUUID().toString(),distance);
+            query3.updateChildren(delivered);
 
             distance = 0L;
 

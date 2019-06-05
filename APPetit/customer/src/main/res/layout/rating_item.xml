@@ -70,6 +70,7 @@
 
         <android.support.v7.widget.AppCompatRatingBar
             android:id="@+id/ratingbaritem"
+            android:isIndicator="true"
             style="@style/CustomRatingBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
