@@ -13,4 +13,9 @@
         android:title="Edit Password"
         app:showAsAction="collapseActionView"/>
 
+    <item
+        android:id="@+id/logout"
+        android:title="Logout"
+        app:showAsAction="collapseActionView"/>
+
 </menu>

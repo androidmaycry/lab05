@@ -1,9 +1,10 @@
 package com.mad.appetit;
 
+import android.support.v7.app.AppCompatActivity;
+
 import android.support.annotation.NonNull;
 import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.internal.BottomNavigationMenuView;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import android.net.Uri;
@@ -17,6 +18,15 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.mad.appetit.DishesActivities.DailyOffer;
+import com.mad.appetit.HomeActivities.Home;
+import com.mad.appetit.HomeActivities.HomeStats;
+import com.mad.appetit.OrderActivities.Order;
+import com.mad.appetit.OrderActivities.PagerAdapterOrder;
+import com.mad.appetit.OrderActivities.Reservation;
+import com.mad.appetit.ProfileActivities.PagerAdapterProfile;
+import com.mad.appetit.ProfileActivities.Profile;
+import com.mad.appetit.ProfileActivities.Rating;
 
 import static android.view.View.VISIBLE;
 import static android.view.View.INVISIBLE;
@@ -25,8 +35,10 @@ import static com.mad.mylibrary.SharedClass.RESTAURATEUR_INFO;
 import static com.mad.mylibrary.SharedClass.ROOT_UID;
 
 public class FragmentManager extends AppCompatActivity implements DailyOffer.OnFragmentInteractionListener,
-        Reservation.OnFragmentInteractionListener, Home.OnFragmentInteractionListener,
-        Profile.OnFragmentInteractionListener{
+        Reservation.OnFragmentInteractionListener, Order.OnFragmentInteractionListener, Home.OnFragmentInteractionListener,
+        Profile.OnFragmentInteractionListener, HomeStats.OnFragmentInteractionListener,
+        PagerAdapterOrder.OnFragmentInteractionListener, PagerAdapterProfile.OnFragmentInteractionListener,
+        Rating.OnFragmentInteractionListener {
 
     private View notificationBadge;
     private BottomNavigationView navigation;
@@ -35,22 +47,31 @@ public class FragmentManager extends AppCompatActivity implements DailyOffer.OnF
             = item ->  {
         switch (item.getItemId()) {
             case R.id.navigation_home:
-                checkBadge();
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Home()).commit();
+                if(!(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof Home)){
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Home()).commit();
+                    refreshBadgeView();
+                }
                 return true;
             case R.id.navigation_profile:
-                checkBadge();
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Profile()).commit();
+                if(!(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof PagerAdapterProfile)){
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new PagerAdapterProfile()).commit();
+                    refreshBadgeView();
+                }
                 return true;
             case R.id.navigation_dailyoffer:
-                checkBadge();
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new DailyOffer()).commit();
+                if(!(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof DailyOffer)){
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new DailyOffer()).commit();
+                    refreshBadgeView();
+                }
                 return true;
             case R.id.navigation_reservation:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Reservation()).commit();
-                hideBadgeView();
+                if(!(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof PagerAdapterOrder)) {
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new PagerAdapterOrder()).commit();
+                    hideBadgeView();
+                }
                 return true;
         }
+
         return false;
     };
 
@@ -59,17 +80,21 @@ public class FragmentManager extends AppCompatActivity implements DailyOffer.OnF
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fragment_manager);
 
-        checkBadge();
-
-        navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                     new Home()).commit();
-
-            addBadgeView();
-            hideBadgeView();
         }
+
+        addBadgeView();
+        hideBadgeView();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkBadge();
     }
 
     private void checkBadge(){

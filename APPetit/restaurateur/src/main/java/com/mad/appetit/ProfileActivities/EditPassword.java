@@ -1,4 +1,4 @@
-package com.mad.appetit;
+package com.mad.appetit.ProfileActivities;
 
 import android.app.ProgressDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +11,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.mad.appetit.R;
 
 public class EditPassword extends AppCompatActivity {
     private String oldPsw, newPsw, confirmPsw, errMsg = "";
@@ -26,38 +27,40 @@ public class EditPassword extends AppCompatActivity {
         findViewById(R.id.text_psw_alert).setVisibility(View.INVISIBLE);
         findViewById(R.id.error_psw).setVisibility(View.INVISIBLE);
 
-        if(checkFields()){
-            findViewById(R.id.text_psw_alert).setVisibility(View.INVISIBLE);
-            findViewById(R.id.error_psw).setVisibility(View.INVISIBLE);
+        findViewById(R.id.button).setOnClickListener(e -> {
+            if(checkFields()){
+                findViewById(R.id.text_psw_alert).setVisibility(View.INVISIBLE);
+                findViewById(R.id.error_psw).setVisibility(View.INVISIBLE);
 
-            progressDialog.show();
+                progressDialog.show();
 
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            String email = user.getEmail();
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                String email = user.getEmail();
 
-            AuthCredential credential = EmailAuthProvider.getCredential(email, oldPsw);
-            user.reauthenticate(credential).addOnCompleteListener(task -> {
-                if(task.isSuccessful()){
-                    user.updatePassword(newPsw).addOnCompleteListener(task1 -> {
-                        if(task1.isSuccessful()){
-                            progressDialog.hide();
-                            Toast.makeText(EditPassword.this, "Password successfully modified", Toast.LENGTH_LONG).show();
-                            finish();
-                        }
-                        else{
-                            progressDialog.hide();
-                            Toast.makeText(EditPassword.this, "Something went wrong. Please try again later", Toast.LENGTH_LONG).show();
-                        }
-                    });
-                }
-                else{
-                    progressDialog.hide();
-                    Toast.makeText(EditPassword.this, "Authentication Failed", Toast.LENGTH_LONG).show();
-                }
-            });
-        }
-        else
-            Toast.makeText(EditPassword.this, errMsg, Toast.LENGTH_LONG).show();
+                AuthCredential credential = EmailAuthProvider.getCredential(email, oldPsw);
+                user.reauthenticate(credential).addOnCompleteListener(task -> {
+                    if(task.isSuccessful()){
+                        user.updatePassword(newPsw).addOnCompleteListener(task1 -> {
+                            if(task1.isSuccessful()){
+                                progressDialog.hide();
+                                Toast.makeText(EditPassword.this, "Password successfully modified", Toast.LENGTH_LONG).show();
+                                finish();
+                            }
+                            else{
+                                progressDialog.hide();
+                                Toast.makeText(EditPassword.this, "Something went wrong. Please try again later", Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                    else{
+                        progressDialog.hide();
+                        Toast.makeText(EditPassword.this, "Authentication Failed. Wrong password.", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+            else
+                Toast.makeText(EditPassword.this, errMsg, Toast.LENGTH_LONG).show();
+        });
     }
 
     private boolean checkFields(){

@@ -36,10 +36,12 @@
             android:id="@+id/dish_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="8dp"
             android:text="Name"
+            android:textSize="16sp"
+            android:textStyle="bold"
             card_view:layout_constraintEnd_toStartOf="@+id/edit_offer"
             card_view:layout_constraintStart_toEndOf="@+id/dish_image"
             card_view:layout_constraintTop_toTopOf="parent" />
@@ -48,10 +50,11 @@
             android:id="@+id/dish_desc"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:text="Description"
+            android:textStyle="italic"
             card_view:layout_constraintEnd_toStartOf="@+id/edit_offer"
             card_view:layout_constraintStart_toEndOf="@+id/dish_image"
             card_view:layout_constraintTop_toBottomOf="@+id/dish_name" />
@@ -75,7 +78,9 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
+            android:layout_marginBottom="16dp"
             android:text="Quantity"
+            card_view:layout_constraintBottom_toBottomOf="parent"
             card_view:layout_constraintEnd_toStartOf="@+id/delete_offer"
             card_view:layout_constraintStart_toEndOf="@+id/textView6"
             card_view:layout_constraintTop_toBottomOf="@+id/dish_price" />
@@ -109,9 +114,10 @@
             android:id="@+id/textView3"
             android:layout_width="wrap_content"
             android:layout_height="18dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:text="Price:"
+            android:textStyle="italic"
             card_view:layout_constraintStart_toEndOf="@+id/dish_image"
             card_view:layout_constraintTop_toBottomOf="@+id/dish_desc" />
 
@@ -119,9 +125,12 @@
             android:id="@+id/textView6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
             android:text="Quantity:"
+            android:textStyle="italic"
+            card_view:layout_constraintBottom_toBottomOf="parent"
             card_view:layout_constraintStart_toEndOf="@+id/dish_image"
             card_view:layout_constraintTop_toBottomOf="@+id/textView3" />
 

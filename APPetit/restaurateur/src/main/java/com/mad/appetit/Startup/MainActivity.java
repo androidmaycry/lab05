@@ -1,4 +1,4 @@
-package com.mad.appetit;
+package com.mad.appetit.Startup;
 
 import static com.mad.mylibrary.SharedClass.ROOT_UID;
 import static com.mad.mylibrary.SharedClass.GOOGLE_SIGIN;
@@ -28,7 +28,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 
 import com.facebook.FacebookSdk;
-import com.facebook.appevents.AppEventsLogger;
+import com.mad.appetit.FragmentManager;
+import com.mad.appetit.R;
+import com.mad.appetit.Startup.SignUp;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -54,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(auth.getCurrentUser() == null && account == null && !(accessToken != null && !accessToken.isExpired())){
             final ProgressDialog progressDialog = new ProgressDialog(this);
-            progressDialog.setTitle("Logging...");
+            progressDialog.setTitle("Authenticating...");
 
             LoginButton fbLogInButton = findViewById(R.id.login_facebook);
             fbLogInButton.setReadPermissions("email");

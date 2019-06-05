@@ -1,4 +1,4 @@
-package com.mad.appetit;
+package com.mad.appetit.OrderActivities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -24,6 +24,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.mad.appetit.R;
 import com.mad.mylibrary.OrderItem;
 import com.mad.mylibrary.OrderRiderItem;
 import com.mad.mylibrary.Restaurateur;
@@ -43,7 +44,7 @@ import static com.mad.mylibrary.SharedClass.RIDERS_ORDER;
 import static com.mad.mylibrary.SharedClass.RIDERS_PATH;
 import static com.mad.mylibrary.SharedClass.ROOT_UID;
 import static com.mad.mylibrary.SharedClass.STATUS_DELIVERING;
-import static com.mad.mylibrary.SharedClass.STATUS_DISCARDED;
+import static com.mad.mylibrary.Utilities.updateInfoDish;
 
 public class MapsActivity extends AppCompatActivity implements MapsFragment.OnFragmentInteractionListener,
         ListRiderFragment.OnFragmentInteractionListener{
@@ -212,14 +213,16 @@ public class MapsActivity extends AppCompatActivity implements MapsFragment.OnFr
                     DatabaseReference acceptOrder = database.getReference(RESTAURATEUR_INFO + "/" + ROOT_UID
                             + "/" + ACCEPTED_ORDER_PATH);
                     Map<String, Object> orderMap = new HashMap<>();
-
-                    //removing order from RESERVATION_PATH and store it into ACCEPTED_ORDER_PATH
                     OrderItem orderItem = dataSnapshot.getValue(OrderItem.class);
+
+                    updateInfoDish(orderItem.getDishes());
+
+                    //removing order from RESERVATION_PATH and storing it into ACCEPTED_ORDER_PATH
                     orderMap.put(Objects.requireNonNull(acceptOrder.push().getKey()), orderItem);
                     dataSnapshot.getRef().removeValue();
                     acceptOrder.updateChildren(orderMap);
 
-                    // choosing the selected rider (riderId)
+                    //choosing the selected rider (riderId)
                     Query queryRider = database.getReference(RIDERS_PATH);
                     queryRider.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -236,8 +239,7 @@ public class MapsActivity extends AppCompatActivity implements MapsFragment.OnFr
                                 }
 
                                 //getting address of restaurant to fill OrderRiderItem class
-                                DatabaseReference getAddrRestaurant = database.getReference(RESTAURATEUR_INFO + "/" + ROOT_UID
-                                        + "/info");
+                                DatabaseReference getAddrRestaurant = database.getReference(RESTAURATEUR_INFO + "/" + ROOT_UID + "/info");
                                 String finalKeyRider = keyRider;
                                 String finalName = name;
                                 getAddrRestaurant.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -251,11 +253,11 @@ public class MapsActivity extends AppCompatActivity implements MapsFragment.OnFr
                                             DatabaseReference addOrderToRider = database.getReference(RIDERS_PATH + "/" + finalKeyRider + RIDERS_ORDER);
                                             addOrderToRider.updateChildren(orderMap);
 
-                                            //setting to 'false' boolean variable of rider
+                                            //setting to 'false' the availability of that rider
                                             DatabaseReference setFalse = database.getReference(RIDERS_PATH + "/" + finalKeyRider + "/available");
                                             setFalse.setValue(false);
 
-                                            //setting status delivering of the order to customer
+                                            //setting STATUS_DELIVERING of the order to customer
                                             DatabaseReference refCustomerOrder = FirebaseDatabase.getInstance()
                                                     .getReference().child(CUSTOMER_PATH + "/" + customerId).child("orders").child(orderId);
                                             HashMap<String, Object> order = new HashMap<>();

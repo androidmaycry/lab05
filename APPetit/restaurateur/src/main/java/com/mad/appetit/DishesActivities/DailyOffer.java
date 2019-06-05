@@ -1,4 +1,4 @@
-package com.mad.appetit;
+package com.mad.appetit.DishesActivities;
 
 import static com.mad.mylibrary.SharedClass.*;
 import android.content.Context;
@@ -31,16 +31,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.mad.appetit.R;
 import com.mad.mylibrary.DishItem;
-
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link DailyOffer.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link DailyOffer#newInstance} factory method to
- * create an instance of this fragment.
- */
 
 class ViewHolderDailyOffer extends RecyclerView.ViewHolder{
     private ImageView dishPhoto;
@@ -88,15 +80,6 @@ public class DailyOffer extends Fragment {
 
     public DailyOffer() {
         // Required empty public constructor
-    }
-
-    public static DailyOffer newInstance() {
-        DailyOffer fragment = new DailyOffer();
-        Bundle args = new Bundle();
-
-        fragment.setArguments(args);
-
-        return fragment;
     }
 
     @Override

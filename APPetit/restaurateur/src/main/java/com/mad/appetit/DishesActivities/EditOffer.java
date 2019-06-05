@@ -1,4 +1,4 @@
-package com.mad.appetit;
+package com.mad.appetit.DishesActivities;
 
 import static com.mad.mylibrary.SharedClass.*;
 import android.Manifest;
@@ -9,7 +9,6 @@ import android.database.Cursor;
 import android.icu.text.SimpleDateFormat;
 import android.net.Uri;
 import android.os.Environment;
-import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -27,6 +26,7 @@ import android.widget.NumberPicker;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -35,12 +35,10 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.mad.appetit.R;
 import com.mad.mylibrary.DishItem;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,24 +46,16 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class EditOffer extends AppCompatActivity {
-    private String error_msg = "";
-    private boolean editing = false;
-    private boolean photoChanged = false;
-    private String keyChild;
-
-    private String name;
-    private String desc;
+    private int frequency = 0;
+    private String name, desc, currentPhotoPath = null, error_msg = "", keyChild;
     private float priceValue = -1;
     private int quantValue = -1;
-    private String currentPhotoPath = null;
     private ImageView imageview;
 
-    private boolean camera_open = false;
-    private boolean price_open = false;
-    private boolean quant_open = false;
+    private boolean camera_open = false, price_open = false, quant_open = false;
+    private boolean editing = false, photoChanged = false;
 
-    private Button priceButton;
-    private Button quantButton;
+    private Button priceButton, quantButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,22 +116,12 @@ public class EditOffer extends AppCompatActivity {
                     priceValue = dish.getPrice();
                     quantValue = dish.getQuantity();
                     currentPhotoPath = dish.getPhoto();
+                    frequency = dish.getFrequency();
 
-                    InputStream inputStream = null;
-
-                    try{
-                        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-                        StrictMode.setThreadPolicy(policy);
-
-                        inputStream = new URL(currentPhotoPath).openStream();
-                        if(inputStream != null)
-                            Glide.with(getApplicationContext()).load(currentPhotoPath).into((ImageView)findViewById(R.id.img_profile));
-                        else
-                            imageview.setImageResource(R.drawable.hamburger);
-                    }
-                    catch (IOException e){
-                        e.printStackTrace();
-                    }
+                    if(currentPhotoPath != null)
+                        Glide.with(getApplicationContext()).load(currentPhotoPath).diskCacheStrategy(DiskCacheStrategy.RESOURCE).into((ImageView)findViewById(R.id.img_profile));
+                    else
+                        Glide.with(getApplicationContext()).load(R.drawable.hamburger).into(imageview);
 
                     ((EditText)findViewById(R.id.name)).setText(name);
                     ((EditText)findViewById(R.id.description)).setText(desc);
@@ -163,12 +143,12 @@ public class EditOffer extends AppCompatActivity {
         desc = ((EditText)findViewById(R.id.description)).getText().toString();
 
         if(name.trim().length() == 0){
-            error_msg = "Insert name";
+            error_msg = "Fill name";
             return false;
         }
 
         if(desc.trim().length() == 0){
-            error_msg = "Insert description";
+            error_msg = "Fill description";
             return false;
         }
 
@@ -401,7 +381,10 @@ public class EditOffer extends AppCompatActivity {
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
         Map<String, Object> dishMap = new HashMap<>();
 
-        if(photoChanged && currentPhotoPath != null) {
+        if(!editing)
+            keyChild = myRef.push().getKey();
+
+        if(photoChanged) {
             Uri photoUri = Uri.fromFile(new File(currentPhotoPath));
             StorageReference ref = storageReference.child("images/"+ UUID.randomUUID().toString());
 
@@ -414,20 +397,16 @@ public class EditOffer extends AppCompatActivity {
                 if (task.isSuccessful()){
                     Uri downUri = task.getResult();
 
-                    if(editing)
-                        dishMap.put(keyChild, new DishItem(name, desc, priceValue, quantValue, downUri.toString(), 0));
-                    else
-                        dishMap.put(Objects.requireNonNull(myRef.push().getKey()), new DishItem(name, desc, priceValue, quantValue, downUri.toString(), 0));
-
+                    dishMap.put(keyChild, new DishItem(name, desc, priceValue, quantValue, downUri.toString(), frequency));
                     myRef.updateChildren(dishMap);
                 }
             });
         }
         else{
-            if(editing && currentPhotoPath != null)
-                dishMap.put(keyChild, new DishItem(name, desc, priceValue, quantValue, currentPhotoPath, 0));
+            if(currentPhotoPath != null)
+                dishMap.put(keyChild, new DishItem(name, desc, priceValue, quantValue, currentPhotoPath, frequency));
             else
-                dishMap.put(Objects.requireNonNull(myRef.push().getKey()), new DishItem(name, desc, priceValue, quantValue, null, 0));
+                dishMap.put(keyChild, new DishItem(name, desc, priceValue, quantValue, null, frequency));
 
             myRef.updateChildren(dishMap);
         }

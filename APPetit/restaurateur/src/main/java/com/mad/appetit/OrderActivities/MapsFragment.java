@@ -1,8 +1,9 @@
-package com.mad.appetit;
+package com.mad.appetit.OrderActivities;
 
 import static com.mad.mylibrary.SharedClass.*;
 
 import com.google.android.gms.maps.model.Marker;
+import com.mad.appetit.R;
 import com.mad.mylibrary.OrderItem;
 
 import android.Manifest;
@@ -54,6 +55,7 @@ import java.util.Objects;
 import java.util.TreeMap;
 
 import static com.mad.mylibrary.SharedClass.RESERVATION_PATH;
+import static com.mad.mylibrary.Utilities.updateInfoDish;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -299,9 +301,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                         DatabaseReference acceptOrder = database.getReference(RESTAURATEUR_INFO + "/" + ROOT_UID
                                 + "/" + ACCEPTED_ORDER_PATH);
                         Map<String, Object> orderMap = new HashMap<>();
-
-                        //removing order from RESERVATION_PATH and store it into ACCEPTED_ORDER_PATH
                         OrderItem orderItem = dataSnapshot.getValue(OrderItem.class);
+
+                        updateInfoDish(orderItem.getDishes());
+
+                        //removing order from RESERVATION_PATH and storing it into ACCEPTED_ORDER_PATH
                         orderMap.put(Objects.requireNonNull(acceptOrder.push().getKey()), orderItem);
                         dataSnapshot.getRef().removeValue();
                         acceptOrder.updateChildren(orderMap);
@@ -349,9 +353,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                                                 order.put("status", STATUS_DELIVERING);
                                                 refCustomerOrder.updateChildren(order);
 
+                                                reservationDialog.dismiss();
                                                 Toast.makeText(getContext(), "Order assigned to rider " + finalName, Toast.LENGTH_LONG).show();
 
-                                                reservationDialog.dismiss();
                                                 getActivity().finish();
                                             }
                                         }

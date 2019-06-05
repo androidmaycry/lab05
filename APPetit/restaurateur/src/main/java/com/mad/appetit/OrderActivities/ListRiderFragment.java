@@ -1,4 +1,4 @@
-package com.mad.appetit;
+package com.mad.appetit.OrderActivities;
 
 import android.content.Context;
 import android.net.Uri;
@@ -21,7 +21,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.mad.appetit.R;
 import com.mad.mylibrary.OrderItem;
+import com.mad.mylibrary.OrderRiderItem;
+import com.mad.mylibrary.Restaurateur;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -31,12 +34,16 @@ import java.util.Objects;
 import java.util.TreeMap;
 
 import static com.mad.mylibrary.SharedClass.ACCEPTED_ORDER_PATH;
+import static com.mad.mylibrary.SharedClass.CUSTOMER_ID;
+import static com.mad.mylibrary.SharedClass.CUSTOMER_PATH;
 import static com.mad.mylibrary.SharedClass.ORDER_ID;
 import static com.mad.mylibrary.SharedClass.RESERVATION_PATH;
 import static com.mad.mylibrary.SharedClass.RESTAURATEUR_INFO;
 import static com.mad.mylibrary.SharedClass.RIDERS_ORDER;
 import static com.mad.mylibrary.SharedClass.RIDERS_PATH;
 import static com.mad.mylibrary.SharedClass.ROOT_UID;
+import static com.mad.mylibrary.SharedClass.STATUS_DELIVERING;
+import static com.mad.mylibrary.Utilities.updateInfoDish;
 
 class RiderInfo{
     private String name;
@@ -160,12 +167,13 @@ public class ListRiderFragment extends Fragment {
         LayoutInflater inflater = LayoutInflater.from(this.getContext());
         final View view = inflater.inflate(R.layout.reservation_dialog, null);
 
-        String id = getActivity().getIntent().getStringExtra(ORDER_ID);
+        String orderId = getActivity().getIntent().getStringExtra(ORDER_ID);
+        String customerId = getActivity().getIntent().getStringExtra(CUSTOMER_ID);
 
         view.findViewById(R.id.button_confirm).setOnClickListener(e -> {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             Query queryDel = database.getReference().child(RESTAURATEUR_INFO + "/" + ROOT_UID
-                    + "/" + RESERVATION_PATH).child(id);
+                    + "/" + RESERVATION_PATH).child(orderId);
 
             queryDel.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -174,8 +182,12 @@ public class ListRiderFragment extends Fragment {
                         DatabaseReference acceptOrder = database.getReference(RESTAURATEUR_INFO + "/" + ROOT_UID
                                 + "/" + ACCEPTED_ORDER_PATH);
                         Map<String, Object> orderMap = new HashMap<>();
+                        OrderItem orderItem = dataSnapshot.getValue(OrderItem.class);
 
-                        orderMap.put(Objects.requireNonNull(acceptOrder.push().getKey()), dataSnapshot.getValue(OrderItem.class));
+                        updateInfoDish(orderItem.getDishes());
+
+                        //removing order from RESERVATION_PATH and storing it into ACCEPTED_ORDER_PATH
+                        orderMap.put(Objects.requireNonNull(acceptOrder.push().getKey()), orderItem);
                         dataSnapshot.getRef().removeValue();
                         acceptOrder.updateChildren(orderMap);
 
@@ -195,16 +207,44 @@ public class ListRiderFragment extends Fragment {
                                         }
                                     }
 
-                                    DatabaseReference addOrderToRider = database.getReference(RIDERS_PATH + "/" + keyRider + RIDERS_ORDER);
-                                    addOrderToRider.updateChildren(orderMap);
+                                    //getting address of restaurant to fill OrderRiderItem class
+                                    DatabaseReference getAddrRestaurant = database.getReference(RESTAURATEUR_INFO + "/" + ROOT_UID + "/info");
+                                    String finalKeyRider = keyRider;
+                                    String finalName = name;
+                                    getAddrRestaurant.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                            if(dataSnapshot.exists()){
+                                                Restaurateur restaurateur = dataSnapshot.getValue(Restaurateur.class);
 
-                                    //setting to 'false' boolean variable of rider
-                                    DatabaseReference setFalse = database.getReference(RIDERS_PATH + "/" + keyRider + "/available");
-                                    setFalse.setValue(false);
+                                                orderMap.clear();
+                                                orderMap.put(orderId, new OrderRiderItem(ROOT_UID, customerId, orderItem.getAddrCustomer(), restaurateur.getAddr(), orderItem.getTime(), orderItem.getTotPrice()));
+                                                DatabaseReference addOrderToRider = database.getReference(RIDERS_PATH + "/" + finalKeyRider + RIDERS_ORDER);
+                                                addOrderToRider.updateChildren(orderMap);
 
-                                    Toast.makeText(getContext(), "Order assigned to rider " + name, Toast.LENGTH_LONG).show();
+                                                //setting to 'false' boolean variable of rider
+                                                DatabaseReference setFalse = database.getReference(RIDERS_PATH + "/" + finalKeyRider + "/available");
+                                                setFalse.setValue(false);
 
-                                    getActivity().finish();
+                                                //setting STATUS_DELIVERING of the order to customer
+                                                DatabaseReference refCustomerOrder = FirebaseDatabase.getInstance()
+                                                        .getReference().child(CUSTOMER_PATH + "/" + customerId).child("orders").child(orderId);
+                                                HashMap<String, Object> order = new HashMap<>();
+                                                order.put("status", STATUS_DELIVERING);
+                                                refCustomerOrder.updateChildren(order);
+
+                                                reservationDialog.dismiss();
+                                                Toast.makeText(getContext(), "Order assigned to rider " + finalName, Toast.LENGTH_LONG).show();
+
+                                                getActivity().finish();
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                                            Log.w("RESERVATION", "Failed to read value.", databaseError.toException());
+                                        }
+                                    });
                                 }
                             }
 
@@ -221,8 +261,6 @@ public class ListRiderFragment extends Fragment {
                     Log.w("RESERVATION", "Failed to read value.", error.toException());
                 }
             });
-
-            reservationDialog.dismiss();
         });
 
         view.findViewById(R.id.button_cancel).setOnClickListener(e -> reservationDialog.dismiss());
