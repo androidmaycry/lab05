@@ -96,7 +96,7 @@ public class Restaurant extends Fragment {
 
         DatabaseReference fav_ref = FirebaseDatabase
                 .getInstance().getReference(CUSTOMER_PATH)
-                .child(ROOT_UID).child("favorite");
+                .child(ROOT_UID).child(CUSTOMER_FAVOURITE_RESTAURANT_PATH);
         fav_ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -161,6 +161,36 @@ public class Restaurant extends Fragment {
                 entryChipGroup.setOnCheckedChangeListener((chipGroup, i) -> {
                     if(chipGroup.getCheckedChipId() == View.NO_ID){
                         onStop();
+                        options =
+                                new FirebaseRecyclerOptions.Builder<Restaurateur>()
+                                        .setQuery(FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO),
+                                                new SnapshotParser<Restaurateur>(){
+                                                    @NonNull
+                                                    @Override
+                                                    public Restaurateur parseSnapshot(@NonNull DataSnapshot snapshot) {
+                                                        Restaurateur searchRest;
+                                                        if(snapshot.child("info").child("photoUri").getValue() == null){
+                                                            searchRest = new Restaurateur(snapshot.child("info").child("mail").getValue().toString(),
+                                                                    snapshot.child("info").child("name").getValue().toString(),
+                                                                    snapshot.child("info").child("addr").getValue().toString(),
+                                                                    snapshot.child("info").child("cuisine").getValue().toString(),
+                                                                    snapshot.child("info").child("openingTime").getValue().toString(),
+                                                                    snapshot.child("info").child("phone").getValue().toString(),
+                                                                    "null");
+                                                        }
+                                                        else{
+                                                            searchRest = new Restaurateur(snapshot.child("info").child("mail").getValue().toString(),
+                                                                    snapshot.child("info").child("name").getValue().toString(),
+                                                                    snapshot.child("info").child("addr").getValue().toString(),
+                                                                    snapshot.child("info").child("cuisine").getValue().toString(),
+                                                                    snapshot.child("info").child("openingTime").getValue().toString(),
+                                                                    snapshot.child("info").child("phone").getValue().toString(),
+                                                                    snapshot.child("info").child("photoUri").getValue().toString());
+                                                        }
+                                                        return searchRest;
+                                                    }
+                                                }).build();
+
                         mAdapter = new FirebaseRecyclerAdapter<Restaurateur, RestaurantViewHolder>(options) {
                             @Override
                             protected void onBindViewHolder(@NonNull RestaurantViewHolder holder, int position, @NonNull Restaurateur model) {
@@ -172,7 +202,10 @@ public class Restaurant extends Fragment {
                             @Override
                             public RestaurantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                                 View view1 = LayoutInflater.from(parent.getContext()).inflate(R.layout.restaurant_item,parent,false);
-                                return new RestaurantViewHolder(view1,getContext());
+                                RestaurantViewHolder resViewHolder = new RestaurantViewHolder(view1,getContext());
+                                resViewHolder.setFavorite(keys_favorite_restaurant);
+
+                                return resViewHolder;
                             }
 
                         };
@@ -197,6 +230,62 @@ public class Restaurant extends Fragment {
         inflater.inflate(R.menu.search, menu);
         final MenuItem searchItem = menu.findItem(R.id.search);
         final SearchView searchView = (SearchView) searchItem.getActionView();
+
+        menu.findItem(R.id.favorite_res).setOnMenuItemClickListener(e ->{
+            onStop();
+            options = new FirebaseRecyclerOptions.Builder<Restaurateur>()
+                            .setQuery(FirebaseDatabase.getInstance()
+                                    .getReference(CUSTOMER_PATH)
+                                    .child(ROOT_UID).child(CUSTOMER_FAVOURITE_RESTAURANT_PATH),
+                                    new SnapshotParser<Restaurateur>(){
+                                        @NonNull
+                                        @Override
+                                        public Restaurateur parseSnapshot(@NonNull DataSnapshot snapshot) {
+                                            Restaurateur searchRest;
+                                            if(snapshot.child("photoUri").getValue() == null){
+                                                searchRest = new Restaurateur(snapshot.child("mail").getValue().toString(),
+                                                        snapshot.child("name").getValue().toString(),
+                                                        snapshot.child("addr").getValue().toString(),
+                                                        snapshot.child("cuisine").getValue().toString(),
+                                                        snapshot.child("openingTime").getValue().toString(),
+                                                        snapshot.child("phone").getValue().toString(),
+                                                        "null");
+                                            }
+                                            else{
+                                                searchRest = new Restaurateur(snapshot.child("mail").getValue().toString(),
+                                                        snapshot.child("name").getValue().toString(),
+                                                        snapshot.child("addr").getValue().toString(),
+                                                        snapshot.child("cuisine").getValue().toString(),
+                                                        snapshot.child("openingTime").getValue().toString(),
+                                                        snapshot.child("phone").getValue().toString(),
+                                                        snapshot.child("photoUri").getValue().toString());
+                                            }
+                                            return searchRest;
+                                        }
+                                    }).build();
+
+            mAdapter = new FirebaseRecyclerAdapter<Restaurateur, RestaurantViewHolder>(options) {
+                @Override
+                protected void onBindViewHolder(@NonNull RestaurantViewHolder holder, int position, @NonNull Restaurateur model) {
+                    String key = getRef(position).getKey();
+                    holder.setData(model, position, key);
+                }
+
+                @NonNull
+                @Override
+                public RestaurantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                    View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.restaurant_item,parent,false);
+                    RestaurantViewHolder resViewHolder = new RestaurantViewHolder(view,getContext());
+                    resViewHolder.setFavorite(keys_favorite_restaurant);
+
+                    return resViewHolder;
+                }
+            };
+            recyclerView.setAdapter(mAdapter);
+            onStart();
+
+            return false;
+        });
 
         searchView.setOnCloseListener(() -> {
             entryChipGroup.setVisibility(View.VISIBLE);

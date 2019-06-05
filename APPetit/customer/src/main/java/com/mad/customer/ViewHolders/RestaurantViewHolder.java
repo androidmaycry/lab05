@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.UUID;
 
+import static com.mad.mylibrary.SharedClass.CUSTOMER_FAVOURITE_RESTAURANT_PATH;
 import static com.mad.mylibrary.SharedClass.CUSTOMER_PATH;
 import static com.mad.mylibrary.SharedClass.ROOT_UID;
 
@@ -74,7 +75,7 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder implements Vie
             }
 
             favorite.setOnClickListener(e -> {
-                DatabaseReference ref = FirebaseDatabase.getInstance().getReference(CUSTOMER_PATH).child(ROOT_UID).child("favorite");
+                DatabaseReference ref = FirebaseDatabase.getInstance().getReference(CUSTOMER_PATH).child(ROOT_UID).child(CUSTOMER_FAVOURITE_RESTAURANT_PATH);
                 if (favorite_bool) {
                     ref.child(key).removeValue();
                     ImageView start = itemView.findViewById(R.id.star_favorite);
