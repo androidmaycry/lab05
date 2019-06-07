@@ -45,6 +45,7 @@ import com.google.gson.reflect.TypeToken;
 import com.hsalf.smilerating.SmileRating;
 import com.mad.customer.R;
 import com.mad.mylibrary.ReviewItem;
+import com.mad.mylibrary.StarItem;
 import com.mad.mylibrary.User;
 
 import java.util.HashMap;
@@ -226,6 +227,7 @@ public class NavApp extends AppCompatActivity implements
                         HashMap<String, Object> review = new HashMap<>();
                         String comment = ((EditText)view.findViewById(R.id.dialog_rating_feedback)).getText().toString();
                         String rate_key = myRef.push().getKey();
+                        updateRestaurantStars(resKey, smileRating.getRating());
                         if(!comment.isEmpty()){
                             setRated(orderKey, true);
                             review.put(rate_key, new ReviewItem(smileRating.getRating(), comment, ROOT_UID, user.getPhotoPath(), user.getName()));
@@ -247,6 +249,32 @@ public class NavApp extends AppCompatActivity implements
                     alertDialog.dismiss();
             });
                 alertDialog.show();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void updateRestaurantStars (String resKey, int stars) {
+        Query query = FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO).child(resKey).child("stars");
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                HashMap<String, Object> star = new HashMap<>();
+                DatabaseReference myRef = FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO + "/" + resKey);
+                if(!dataSnapshot.exists()){
+                    star.put("stars", new StarItem(stars, 1, Integer.MAX_VALUE-stars));
+                    myRef.updateChildren(star);
+                }
+                else {
+                    int s = ((Long)dataSnapshot.child("tot_stars").getValue()).intValue();
+                    int p = ((Long)dataSnapshot.child("tot_review").getValue()).intValue();
+                    star.put("stars", new StarItem(s+stars, p+1, Integer.MAX_VALUE-(s+stars)));
+                    myRef.updateChildren(star);
+                }
             }
 
             @Override

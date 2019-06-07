@@ -7,20 +7,30 @@ public class OrderCustomerItem implements Serializable {
     private String key, addrCustomer, totPrice;
     private HashMap<String, Integer> dishes; //key = dish name, value = quantity
     private Long time;
+    private Long sort;
     private Integer status;
     private boolean rated;
 
     public OrderCustomerItem() {
     }
 
-    public OrderCustomerItem(String key, String addrCustomer, String totPrice, HashMap<String, Integer> dishes, Long time, Integer status, boolean rated) {
+    public OrderCustomerItem(String key, String addrCustomer, String totPrice, HashMap<String, Integer> dishes, Long time, Long sort, Integer status, boolean rated) {
         this.key = key;
         this.addrCustomer = addrCustomer;
         this.totPrice = totPrice;
         this.dishes = dishes;
         this.time = time;
+        this.sort = sort;
         this.status = status;
         this.rated = rated;
+    }
+
+    public Long getSort() {
+        return sort;
+    }
+
+    public void setSort(Long sort) {
+        this.sort = sort;
     }
 
     public String getKey() {

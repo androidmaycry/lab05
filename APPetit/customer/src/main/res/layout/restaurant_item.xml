@@ -27,7 +27,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="20dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="32dp"
             android:src="@drawable/restaurant_home"
             card_view:civ_border_color="#ffff"
             card_view:civ_border_width="2dp"
@@ -58,8 +58,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="6dp"
             android:text="Address: "
+            android:textSize="12sp"
             android:textStyle="bold"
             card_view:layout_constraintStart_toEndOf="@+id/restaurant_image"
             card_view:layout_constraintTop_toBottomOf="@+id/restaurant_name" />
@@ -68,9 +69,10 @@
             android:id="@+id/listview_address"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="6dp"
             android:layout_marginEnd="8dp"
             android:text="TextView"
+            android:textSize="12sp"
             card_view:layout_constraintEnd_toStartOf="@+id/star_favorite"
             card_view:layout_constraintStart_toEndOf="@+id/textView2"
             card_view:layout_constraintTop_toBottomOf="@+id/restaurant_name" />
@@ -80,8 +82,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="6dp"
             android:text="Cuisine: "
+            android:textSize="12sp"
             android:textStyle="bold"
             card_view:layout_constraintStart_toEndOf="@+id/restaurant_image"
             card_view:layout_constraintTop_toBottomOf="@+id/listview_address" />
@@ -90,9 +93,10 @@
             android:id="@+id/listview_cuisine"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="6dp"
             android:layout_marginEnd="8dp"
             android:text="TextView"
+            android:textSize="12sp"
             card_view:layout_constraintEnd_toStartOf="@+id/star_favorite"
             card_view:layout_constraintStart_toEndOf="@+id/textView5"
             card_view:layout_constraintTop_toBottomOf="@+id/listview_address" />
@@ -127,8 +131,19 @@
             card_view:layout_constraintEnd_toEndOf="parent"
             card_view:layout_constraintHorizontal_bias="0.0"
             card_view:layout_constraintStart_toEndOf="@+id/listview_pren"
-            card_view:layout_constraintTop_toBottomOf="@+id/listview_cuisine"
-            card_view:layout_constraintVertical_bias="1.0" />
+            card_view:layout_constraintTop_toBottomOf="@+id/ratingBaritem" />
+
+        <RatingBar
+            android:id="@+id/ratingBaritem"
+            style="@style/CustomRatingBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:isIndicator="true"
+            android:stepSize="0.1"
+            card_view:layout_constraintStart_toStartOf="parent"
+            card_view:layout_constraintTop_toBottomOf="@+id/restaurant_image" />
 
         <ImageView
             android:id="@+id/star_favorite"
@@ -138,6 +153,18 @@
             card_view:layout_constraintEnd_toEndOf="parent"
             card_view:layout_constraintTop_toTopOf="@+id/listview_address"
             card_view:srcCompat="@drawable/heart" />
+
+        <TextView
+            android:id="@+id/textView14"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="8dp"
+            android:text="0.0"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            card_view:layout_constraintBottom_toTopOf="@+id/listview_opening"
+            card_view:layout_constraintStart_toEndOf="@+id/ratingBaritem" />
 
 
     </android.support.constraint.ConstraintLayout>
