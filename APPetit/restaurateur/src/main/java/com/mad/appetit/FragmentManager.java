@@ -49,26 +49,24 @@ public class FragmentManager extends AppCompatActivity implements DailyOffer.OnF
             case R.id.navigation_home:
                 if(!(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof Home)){
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Home()).commit();
-                    refreshBadgeView();
+                    //refreshBadgeView();
                 }
                 return true;
             case R.id.navigation_profile:
                 if(!(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof PagerAdapterProfile)){
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new PagerAdapterProfile()).commit();
-                    refreshBadgeView();
+                    //refreshBadgeView();
                 }
                 return true;
             case R.id.navigation_dailyoffer:
                 if(!(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof DailyOffer)){
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new DailyOffer()).commit();
-                    refreshBadgeView();
+                    //refreshBadgeView();
                 }
                 return true;
             case R.id.navigation_reservation:
-                if(!(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof PagerAdapterOrder)) {
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new PagerAdapterOrder()).commit();
-                    hideBadgeView();
-                }
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Reservation()).commit();
+                hideBadgeView();
                 return true;
         }
 
