@@ -3,7 +3,11 @@ package com.mad.riders;
 
 import static com.mad.mylibrary.SharedClass.ROOT_UID;
 import static com.mad.mylibrary.SharedClass.RIDERS_PATH;
-import com.mad.riders.services.LocationService;
+
+import com.mad.riders.NavigationFragments.Home;
+import com.mad.riders.NavigationFragments.Orders;
+import com.mad.riders.NavigationFragments.Profile;
+import com.mad.riders.Services.LocationService;
 
 
 import android.app.ActivityManager;

@@ -281,7 +281,7 @@ public class EditProfile extends AppCompatActivity {
 
             if (photoFile != null) {
                 Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.example.android.fileprovider",
+                        "com.mad.customer",
                         photoFile);
 
                 photoChanged = true;

@@ -1,9 +1,7 @@
-package com.mad.riders;
+package com.mad.riders.ProfileManagment;
 
 import static com.mad.mylibrary.SharedClass.*;
 
-import com.google.android.gms.maps.MapView;
-import com.mad.mylibrary.Utilities;
 import com.mad.mylibrary.User;
 import android.Manifest;
 import android.app.ProgressDialog;
@@ -13,9 +11,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.icu.text.SimpleDateFormat;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -37,21 +33,19 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.mad.riders.R;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 
 public class EditProfile extends AppCompatActivity {

@@ -24,6 +24,7 @@ import android.icu.text.SimpleDateFormat;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -67,7 +68,7 @@ public class SignUp extends AppCompatActivity {
     private String error_msg;
 
     private FirebaseDatabase database;
-    private Button addressButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,15 +85,14 @@ public class SignUp extends AppCompatActivity {
         // Set the fields to specify which types of place data to return.
         List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS);
 
-        addressButton = findViewById(R.id.button_address);
-        addressButton.setOnClickListener(l-> {
+        findViewById(R.id.address).setOnClickListener(l-> {
 
             Intent intent = new Autocomplete.IntentBuilder(
                     AutocompleteActivityMode.FULLSCREEN, fields)
                     .build(this);
-            startActivityForResult(intent, 2);
+            startActivityForResult(intent, 3);
         });
-        Button confirm_reg = findViewById(R.id.back_order_button);
+        Button confirm_reg = findViewById(R.id.sign_up);
         confirm_reg.setOnClickListener(e -> {
             if(checkFields()){
                 auth.createUserWithEmailAndPassword(mail,psw).addOnCompleteListener(this, task -> {
@@ -136,7 +136,7 @@ public class SignUp extends AppCompatActivity {
                     Log.d("URL", "onComplete: Url: "+ downUri.toString());
 
                     Map<String, Object> new_user = new HashMap<>();
-                    new_user.put("info",new User("malanti", name, surname
+                    new_user.put("customer_info",new User("malanti", name, surname
                             , mail, phone, address, downUri.toString()));
                     myRef.updateChildren(new_user);
 
@@ -209,7 +209,7 @@ public class SignUp extends AppCompatActivity {
 
             if (photoFile != null) {
                 Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.mad.costumer.fileprovider",
+                        "com.mad.customer.fileprovider",
                         photoFile);
 
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
@@ -236,10 +236,9 @@ public class SignUp extends AppCompatActivity {
         name = ((EditText)findViewById(R.id.name)).getText().toString();
         surname = ((EditText)findViewById(R.id.surname)).getText().toString();
         mail = ((EditText)findViewById(R.id.mail)).getText().toString();
-        phone = ((EditText)findViewById(R.id.phone2)).getText().toString();
+        phone = ((EditText)findViewById(R.id.phone)).getText().toString();
         psw = ((EditText)findViewById(R.id.psw)).getText().toString();
-        address = ((Button)findViewById(R.id.button_address)).getText().toString();
-        psw_confirm = ((EditText)findViewById(R.id.psw_confirm)).getText().toString();
+        address = ((EditText)findViewById(R.id.address)).getText().toString();
 
         if(name.trim().length() == 0){
             error_msg = "Fill name";
@@ -258,11 +257,6 @@ public class SignUp extends AppCompatActivity {
 
         if(phone.trim().length() != 10){
             error_msg = "Invalid phone number";
-            return false;
-        }
-
-        if(psw.compareTo(psw_confirm) != 0){
-            error_msg = "Passwords don't match";
             return false;
         }
 
@@ -330,11 +324,12 @@ public class SignUp extends AppCompatActivity {
             Glide.with(getApplicationContext()).load(currentPhotoPath).into((ImageView)findViewById(R.id.img_profile));
         }
 
-        if (requestCode == 2) {
+        if (requestCode == 3) {
             if (resultCode == RESULT_OK) {
                 Place place = Autocomplete.getPlaceFromIntent(data);
 
-                addressButton.setText(place.getAddress());
+                EditText address_text = findViewById(R.id.address);
+                address_text.setText(place.getAddress());
 
                 if(currentPhotoPath != null) {
                     Glide.with(Objects.requireNonNull(this))
@@ -366,7 +361,7 @@ public class SignUp extends AppCompatActivity {
         savedInstanceState.putString(Name, ((EditText)findViewById(R.id.name)).getText().toString());
         savedInstanceState.putString(Address, ((EditText)findViewById(R.id.surname)).getText().toString());
         savedInstanceState.putString(Mail, ((EditText)findViewById(R.id.mail)).getText().toString());
-        savedInstanceState.putString(Phone, ((EditText)findViewById(R.id.phone2)).getText().toString());
+        savedInstanceState.putString(Phone, ((EditText)findViewById(R.id.phone)).getText().toString());
         savedInstanceState.putString(Photo, currentPhotoPath);
         savedInstanceState.putBoolean(CameraOpen, dialog_open);
     }
@@ -378,7 +373,7 @@ public class SignUp extends AppCompatActivity {
         ((EditText)findViewById(R.id.name)).setText(savedInstanceState.getString(Name));
         ((EditText)findViewById(R.id.surname)).setText(savedInstanceState.getString(Address));
         ((EditText)findViewById(R.id.mail)).setText(savedInstanceState.getString(Mail));
-        ((EditText)findViewById(R.id.phone2)).setText(savedInstanceState.getString(Phone));
+        ((EditText)findViewById(R.id.phone)).setText(savedInstanceState.getString(Phone));
         currentPhotoPath = savedInstanceState.getString(Photo);
         if(currentPhotoPath != null){
             Glide.with(getApplicationContext()).load(currentPhotoPath).into((ImageView) findViewById(R.id.img_profile));

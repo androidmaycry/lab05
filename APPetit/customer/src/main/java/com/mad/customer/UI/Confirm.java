@@ -81,7 +81,7 @@ public class Confirm extends AppCompatActivity {
                     dishes.put(key, Integer.parseInt(nums.get(keys.indexOf(key))));
                 }
                 String keyOrder = myRef2.push().getKey(); //key dell'ordine generata
-                order.put(keyOrder, new OrderCustomerItem(key,user.addr,tot, dishes,time,STATUS_UNKNOWN, true));
+                order.put(keyOrder, new OrderCustomerItem(key,user.addr,tot, dishes,time,Long.MAX_VALUE-time,STATUS_UNKNOWN, true));
                 myRef2.updateChildren(order);
 
                 //Push sul database per ristoratore

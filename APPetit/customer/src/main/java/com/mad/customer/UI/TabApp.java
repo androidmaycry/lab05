@@ -74,22 +74,20 @@ public class TabApp extends AppCompatActivity {
         item = (Restaurateur) getIntent().getSerializableExtra("res_item");
         key = getIntent().getStringExtra("key");
 
-        Query query = FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO).child(key).child("review");
-        query.addValueEventListener(new ValueEventListener() {
+        Query query = FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO).child(key).child("stars");
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 RatingBar r = findViewById(R.id.ratingbar);
                 TextView number = (TextView) findViewById(R.id.number_rating);
                 if(dataSnapshot.exists()) {
-                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                        stars += (long) ds.child("stars").getValue();
-                    }
-                    count = (int) dataSnapshot.getChildrenCount();
-                    float v = ((float) stars / (float) count);
-                    r.setRating(v);
-                    number.setText(String.format("%.2f", v));
+                    float s = ((Long)dataSnapshot.child("tot_stars").getValue()).floatValue();
+                    float p = ((Long)dataSnapshot.child("tot_review").getValue()).floatValue();
+                    r.setRating(s/p);
+                    number.setText(String.format("%.2f", s/p));
+
                 }
-                else{
+                else {
                     r.setRating(0);
                     number.setVisibility(View.GONE);
                 }

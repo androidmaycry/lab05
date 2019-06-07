@@ -91,9 +91,10 @@ public class Profile extends Fragment {
             startActivity(mainActivity);
         });
 
-        myRef.addValueEventListener(new ValueEventListener() {
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d("ROOT_UID" , ROOT_UID);
                 User user = dataSnapshot.child("customer_info").getValue(User.class);
 
                 ((TextView) view.findViewById(R.id.name)).setText(user.getName());

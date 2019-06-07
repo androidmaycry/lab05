@@ -24,12 +24,12 @@
         <activity android:name=".UI.SignUp" />
         <activity android:name=".UI.Confirm" />
         <activity android:name=".UI.EditProfile" />
-        <activity android:name=".UI.Ordering" />
         <activity android:name=".UI.NavApp" />
+        <activity android:name=".UI.MainActivity"/>
         <activity
-            android:name=".UI.MainActivity"
+            android:name=".UI.SplashActivity"
             android:label="APPetit"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
