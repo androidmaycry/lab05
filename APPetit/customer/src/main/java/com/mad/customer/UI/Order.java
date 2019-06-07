@@ -51,7 +51,7 @@ public class Order extends Fragment {
     private RecyclerView recyclerView_ordered;
     private static FirebaseRecyclerOptions<OrderCustomerItem> options =
             new FirebaseRecyclerOptions.Builder<OrderCustomerItem>()
-                    .setQuery(FirebaseDatabase.getInstance().getReference(CUSTOMER_PATH).child(ROOT_UID).child("orders"),
+                    .setQuery(FirebaseDatabase.getInstance().getReference(CUSTOMER_PATH).child(ROOT_UID).child("orders").orderByChild("sort"),
                             OrderCustomerItem.class).build();
 
     private Order.OnFragmentInteractionListener mListener;

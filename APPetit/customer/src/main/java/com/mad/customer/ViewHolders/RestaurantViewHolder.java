@@ -4,15 +4,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.mad.customer.UI.OrderingFragment;
 import com.mad.customer.R;
 import com.mad.customer.UI.TabApp;
@@ -24,6 +30,7 @@ import java.util.UUID;
 
 import static com.mad.mylibrary.SharedClass.CUSTOMER_FAVOURITE_RESTAURANT_PATH;
 import static com.mad.mylibrary.SharedClass.CUSTOMER_PATH;
+import static com.mad.mylibrary.SharedClass.RESTAURATEUR_INFO;
 import static com.mad.mylibrary.SharedClass.ROOT_UID;
 
 public class RestaurantViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
@@ -38,6 +45,8 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder implements Vie
     private Context context;
     private boolean favorite_bool,favorite_visible;
     private LinkedList<String> list_favorite;
+    private RatingBar ratingBar;
+    private TextView star_value;
 
     public RestaurantViewHolder(View itemView, Context context){
         super(itemView);
@@ -49,6 +58,8 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder implements Vie
         this.context = context;
         favorite_bool = false;
         favorite_visible = false;
+        ratingBar = itemView.findViewById(R.id.ratingBaritem);
+        star_value = itemView.findViewById(R.id.textView14);
         itemView.setOnClickListener(this);
     }
 
@@ -101,8 +112,31 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder implements Vie
         else{
             favorite.setVisibility(View.INVISIBLE);
         }
+        Query query = FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO).child(key).child("stars");
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()) {
+                    float s = ((Long)dataSnapshot.child("tot_stars").getValue()).floatValue();
+                    float p = ((Long)dataSnapshot.child("tot_review").getValue()).floatValue();
+                    ratingBar.setRating(s/p);
+                    star_value.setText(String.format("%.2f", s/p));
 
+                }
+                else {
+                    ratingBar.setRating(0);
+                    star_value.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
+
+
 
     @Override
     public void onClick(View view) {
