@@ -1,4 +1,4 @@
-package com.mad.riders;
+package com.mad.riders.NavigationFragments;
 
 import static com.mad.mylibrary.SharedClass.*;
 
@@ -21,8 +21,6 @@ import com.google.maps.PendingResult;
 import com.google.maps.internal.PolylineEncoding;
 import com.google.maps.model.DirectionsResult;
 import com.google.maps.model.DirectionsRoute;
-import com.google.maps.model.Distance;
-import com.mad.mylibrary.OrderItem;
 
 import android.Manifest;
 import android.content.Context;
@@ -54,8 +52,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.mad.mylibrary.OrderRiderItem;
-import com.mad.mylibrary.Position;
 import com.mad.mylibrary.Restaurateur;
+import com.mad.riders.R;
 
 
 import java.io.IOException;
@@ -63,7 +61,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;

@@ -1,8 +1,7 @@
-package com.mad.riders;
+package com.mad.riders.ProfileManagment;
 
 import static com.mad.mylibrary.SharedClass.*;
 
-import com.mad.mylibrary.Utilities;
 import com.mad.mylibrary.User;
 import android.Manifest;
 import android.app.ProgressDialog;
@@ -43,14 +42,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.mad.riders.R;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 
 public class SignUp extends AppCompatActivity {

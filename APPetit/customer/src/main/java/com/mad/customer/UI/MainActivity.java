@@ -1,5 +1,6 @@
 package com.mad.customer.UI;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.content.Intent;
 import android.support.annotation.Nullable;
@@ -36,13 +37,19 @@ public class MainActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.sign_in).setOnClickListener(e -> {
+            final ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setTitle("Authenticating...");
             if(checkFields()){
+
+                progressDialog.show();
+
                 auth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(this, task -> {
                             if (task.isSuccessful()) {
                                 ROOT_UID = auth.getUid();
                                 Intent fragment = new Intent(this, NavApp.class);
                                 startActivity(fragment);
+                                progressDialog.dismiss();
                                 finish();
                             } else {
                                 Toast.makeText(MainActivity.this,"Wrong Username or Password", Toast.LENGTH_LONG).show();
@@ -51,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
             }
             else{
                 Toast.makeText(MainActivity.this, errMsg, Toast.LENGTH_LONG).show();
+                progressDialog.dismiss();
             }
         });
 

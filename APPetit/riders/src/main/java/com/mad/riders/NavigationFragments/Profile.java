@@ -1,4 +1,4 @@
-package com.mad.riders;
+package com.mad.riders.NavigationFragments;
 
 import static com.mad.mylibrary.SharedClass.*;
 import android.content.Context;
@@ -26,6 +26,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.mad.mylibrary.User;
+import com.mad.riders.ProfileManagment.EditPassword;
+import com.mad.riders.ProfileManagment.EditProfile;
+import com.mad.riders.MainActivity;
+import com.mad.riders.R;
 
 import java.util.Objects;
 
@@ -61,19 +65,11 @@ public class Profile extends Fragment {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-        view.findViewById(R.id.logout).setOnClickListener(e -> {
-                    FirebaseAuth.getInstance().signOut();
-
-            Intent mainActivity = new Intent(getContext(), MainActivity.class);
-            mainActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(mainActivity);
-        });
-
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference(RIDERS_PATH).child(ROOT_UID);
 
-        myRef.addValueEventListener(new ValueEventListener() {
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // This method is called once with the initial value and again
@@ -120,6 +116,18 @@ public class Profile extends Fragment {
             case R.id.add:
                 Intent i = new Intent(getContext(), EditProfile.class);
                 startActivity(i);
+                return true;
+            case R.id.edit_password:
+                Intent editPsw = new Intent(getContext(), EditPassword.class);
+                startActivity(editPsw);
+                return true;
+
+            case R.id.logout:
+                FirebaseAuth.getInstance().signOut();
+
+                Intent mainActivity = new Intent(getContext(), MainActivity.class);
+                mainActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(mainActivity);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
