@@ -244,7 +244,8 @@ public class HomeStats extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        mAdapter.stopListening();
+        if(mAdapter != null)
+            mAdapter.stopListening();
     }
 
     // TODO: Rename method, update argument and hook method into UI event

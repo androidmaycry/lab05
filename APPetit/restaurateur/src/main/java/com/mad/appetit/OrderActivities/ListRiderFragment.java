@@ -47,10 +47,12 @@ import static com.mad.mylibrary.Utilities.updateInfoDish;
 
 class RiderInfo{
     private String name;
+    private String key;
     private Double dist;
 
-    public RiderInfo(String name, Double dist) {
+    public RiderInfo(String name, String key, Double dist) {
         this.name = name;
+        this.key = key;
         this.dist = dist;
     }
 
@@ -61,6 +63,10 @@ class RiderInfo{
     public Double getDist() {
         return dist;
     }
+
+    public String getKey() {
+        return key;
+    }
 }
 
 class ListRiderAdapter extends RecyclerView.Adapter<ListRiderAdapter.MyViewHolder> {
@@ -68,7 +74,6 @@ class ListRiderAdapter extends RecyclerView.Adapter<ListRiderAdapter.MyViewHolde
     private LayoutInflater mInflater;
     private ListRiderFragment listRiderFragment;
 
-    // Provide a suitable constructor (depends on the kind of dataset)
     public ListRiderAdapter(Context context, ArrayList<RiderInfo> myDataset, ListRiderFragment listRiderFragment) {
         mInflater = LayoutInflater.from(context);
         this.mDataset = myDataset;
@@ -76,39 +81,34 @@ class ListRiderAdapter extends RecyclerView.Adapter<ListRiderAdapter.MyViewHolde
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder {
-        // each data item is just a string in this case
         TextView nameRider, distanceValue;
         View view_item;
         public MyViewHolder(View itemView){
             super(itemView);
             this.view_item = itemView;
-            nameRider = itemView.findViewById(R.id.name_rider);
-            distanceValue = itemView.findViewById(R.id.distance);
+            this.nameRider = itemView.findViewById(R.id.name_rider);
+            this.distanceValue = itemView.findViewById(R.id.distance);
         }
     }
 
-    // Create new views (invoked by the layout manager)
     @Override
     public ListRiderAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view =  mInflater.inflate(R.layout.list_rider_item, parent, false);
 
-        view.findViewById(R.id.confirm_rider).setOnClickListener(e -> listRiderFragment.selectRider());
-
         return new MyViewHolder(view);
     }
 
-    // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        // - get element from your dataset at this position
-        // - replace the contents of the view with that element
         RiderInfo mCurrent = mDataset.get(position);
+
         holder.nameRider.setText(mCurrent.getName());
         DecimalFormat df = new DecimalFormat("#.##");
         holder.distanceValue.setText((df.format(mCurrent.getDist())) + " km");
+
+        holder.itemView.findViewById(R.id.confirm_rider).setOnClickListener(e -> listRiderFragment.selectRider(mCurrent.getKey()));
     }
 
-    // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
         return mDataset.size();
@@ -125,9 +125,7 @@ public class ListRiderFragment extends Fragment {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
 
-    public ListRiderFragment() {
-        // Required empty public constructor
-    }
+    public ListRiderFragment() { }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -158,11 +156,11 @@ public class ListRiderFragment extends Fragment {
         ridersList = new ArrayList<>();
 
         for(Map.Entry<Double,String> entry : distanceMap.entrySet()) {
-            ridersList.add(new RiderInfo(ridersMap.get(entry.getValue()), entry.getKey()));
+            ridersList.add(new RiderInfo(ridersMap.get(entry.getValue()), entry.getValue(), entry.getKey()));
         }
     }
 
-    public void selectRider() {
+    public void selectRider(String riderId) {
         AlertDialog reservationDialog = new AlertDialog.Builder(this.getContext()).create();
         LayoutInflater inflater = LayoutInflater.from(this.getContext());
         final View view = inflater.inflate(R.layout.reservation_dialog, null);
@@ -200,7 +198,7 @@ public class ListRiderFragment extends Fragment {
                                     String keyRider = "", name = "";
 
                                     for(DataSnapshot d : dataSnapshot.getChildren()){
-                                        if((boolean)d.child("available").getValue()){
+                                        if(d.getKey().equals(riderId)){
                                             keyRider = d.getKey();
                                             name = d.child("rider_info").child("name").getValue(String.class);
                                             break;

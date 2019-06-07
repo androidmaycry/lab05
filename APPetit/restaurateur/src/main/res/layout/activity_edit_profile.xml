@@ -178,10 +178,10 @@
 
         <Button
             android:id="@+id/edit_opening_time"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="12dp"
             android:backgroundTint="@color/colorPrimary"
             android:text="Opening"
             android:textColor="@android:color/white"
@@ -190,21 +190,15 @@
 
         <Button
             android:id="@+id/edit_closing_time"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="44dp"
-            android:layout_marginBottom="8dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="12dp"
             android:backgroundTint="@color/colorPrimary"
             android:text="Closing"
             android:textColor="@android:color/white"
-            app:layout_constraintBottom_toTopOf="@+id/button"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toEndOf="@+id/textViewClosingTime"
-            app:layout_constraintTop_toBottomOf="@+id/time_text"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintTop_toBottomOf="@+id/time_text" />
 
         <Button
             android:id="@+id/button_address2"
@@ -225,20 +219,20 @@
 
         <TextView
             android:id="@+id/textViewOpeningTime"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="24dp"
             android:text="From"
             app:layout_constraintStart_toEndOf="@+id/imageViewTime"
             app:layout_constraintTop_toBottomOf="@+id/time_text" />
 
         <TextView
             android:id="@+id/textViewClosingTime"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="28dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="24dp"
             android:text="To"
             app:layout_constraintStart_toEndOf="@+id/edit_opening_time"
             app:layout_constraintTop_toBottomOf="@+id/time_text" />
@@ -248,7 +242,7 @@
             android:layout_width="0dp"
             android:layout_height="2dp"
             android:layout_marginStart="84dp"
-            android:layout_marginTop="180dp"
+            android:layout_marginTop="186dp"
             android:layout_marginEnd="44dp"
             android:background="@android:color/darker_gray"
             app:layout_constraintEnd_toEndOf="parent"

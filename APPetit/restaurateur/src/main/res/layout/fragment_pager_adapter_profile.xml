@@ -62,7 +62,7 @@
             android:layout_marginEnd="36dp"
             android:layout_marginBottom="18dp"
             android:isIndicator="true"
-            android:stepSize="1"
+            android:stepSize="0.1"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.446"

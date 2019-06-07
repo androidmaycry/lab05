@@ -6,6 +6,8 @@
     tools:context=".ProfileActivities.Rating"
     android:orientation="vertical">
 
+
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rating_recyclerview"
         android:layout_width="match_parent"

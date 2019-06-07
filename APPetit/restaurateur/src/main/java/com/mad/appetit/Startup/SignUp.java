@@ -53,6 +53,7 @@ import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.mad.mylibrary.StarItem;
 
 import java.io.File;
 import java.util.Arrays;
@@ -94,7 +95,7 @@ public class SignUp extends AppCompatActivity {
             Intent intent = new Autocomplete.IntentBuilder(
                     AutocompleteActivityMode.FULLSCREEN, fields)
                     .build(this);
-            startActivityForResult(intent, 2);
+            startActivityForResult(intent, 3);
         });
 
         findViewById(R.id.plus).setOnClickListener(p -> editPhoto());
@@ -408,35 +409,33 @@ public class SignUp extends AppCompatActivity {
             Glide.with(getApplicationContext()).load(currentPhotoPath).into((ImageView)findViewById(R.id.img_profile));
         }
 
-        if (requestCode == 2) {
-            if (resultCode == RESULT_OK) {
-                Place place = Autocomplete.getPlaceFromIntent(data);
+        if(requestCode == 3 && resultCode == RESULT_OK) {
+            Place place = Autocomplete.getPlaceFromIntent(data);
 
-                latitude = place.getLatLng().latitude;
-                longitude = place.getLatLng().longitude;
+            latitude = place.getLatLng().latitude;
+            longitude = place.getLatLng().longitude;
 
-                address.setText(place.getAddress());
+            address.setText(place.getAddress());
 
-                if(currentPhotoPath != null) {
-                    Glide.with(Objects.requireNonNull(this))
-                            .load(currentPhotoPath)
-                            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                            .into((ImageView) findViewById(R.id.img_profile));
-                }
-                else {
-                    Glide.with(Objects.requireNonNull(this))
-                            .load(R.drawable.restaurant_home)
-                            .into((ImageView) findViewById(R.id.img_profile));
-                }
-
-                Log.i("TAG", "Place: " + place.getAddress());
-            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
-                // TODO: Handle the error.
-                Status status = Autocomplete.getStatusFromIntent(data);
-                Log.i("TAG", status.getStatusMessage());
-            } else if (resultCode == RESULT_CANCELED) {
-                // The user canceled the operation.
+            if(currentPhotoPath != null) {
+                Glide.with(Objects.requireNonNull(this))
+                        .load(currentPhotoPath)
+                        .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                        .into((ImageView) findViewById(R.id.img_profile));
             }
+            else {
+                Glide.with(Objects.requireNonNull(this))
+                        .load(R.drawable.restaurant_home)
+                        .into((ImageView) findViewById(R.id.img_profile));
+            }
+
+            Log.i("TAG", "Place: " + place.getAddress());
+        } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+            // TODO: Handle the error.
+            Status status = Autocomplete.getStatusFromIntent(data);
+            Log.i("TAG", status.getStatusMessage());
+        } else if (resultCode == RESULT_CANCELED) {
+            // The user canceled the operation.
         }
     }
 
@@ -470,9 +469,14 @@ public class SignUp extends AppCompatActivity {
                     posInfoMap.put("info_pos", new LatLng(latitude, longitude));
                     myRef.updateChildren(posInfoMap);
 
+                    restMap.clear();
+                    restMap.put("stars", new StarItem(0, 0, 0));
+                    myRef.updateChildren(restMap);
+
+                    progressDialog.dismiss();
+
                     Intent i = new Intent();
                     setResult(1, i);
-                    progressDialog.dismiss();
                     finish();
                 }
             });
@@ -485,9 +489,14 @@ public class SignUp extends AppCompatActivity {
             posInfoMap.put("info_pos", new LatLng(latitude, longitude));
             myRef.updateChildren(posInfoMap);
 
+            restMap.clear();
+            restMap.put("stars", new StarItem(0, 0, 0));
+            myRef.updateChildren(restMap);
+
+            progressDialog.dismiss();
+
             Intent i = new Intent();
             setResult(1, i);
-            progressDialog.dismiss();
             finish();
         }
     }
