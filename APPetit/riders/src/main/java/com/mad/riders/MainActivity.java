@@ -31,33 +31,6 @@ public class MainActivity extends AppCompatActivity {
         if (auth.getCurrentUser() == null) {
             final ProgressDialog progressDialog = new ProgressDialog(this);
             progressDialog.setTitle("Authenticating...");
-            /*
-            LoginButton fbLogInButton = findViewById(R.id.login_facebook);
-            fbLogInButton.setReadPermissions("email");
-            callbackManager = CallbackManager.Factory.create();
-            fbLogInButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-                @Override
-                public void onSuccess(LoginResult loginResult) {
-                    ROOT_UID = AccessToken.getCurrentAccessToken().getUserId();
-
-                    Intent fragment = new Intent(getApplicationContext(), FragmentManager.class);
-                    startActivity(fragment);
-                    finish();
-                }
-
-                @Override
-                public void onCancel() {
-                    Snackbar.make(findViewById(R.id.email), "Canceled.", Snackbar.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void onError(FacebookException exception) {
-                    //Log.w("FACEBOOK LOGIN", "signIn:failure", exception.getMessage());
-                    Snackbar.make(findViewById(R.id.email), "Some errors occurred. Try again.", Snackbar.LENGTH_SHORT).show();
-                }
-            });
-            */
-
 
             findViewById(R.id.sign_up).setOnClickListener(e -> {
                 Intent login = new Intent(this, SignUp.class);
@@ -103,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
             startActivity(fragment);
             finish();
         }
-
     }
 
     public boolean checkFields() {

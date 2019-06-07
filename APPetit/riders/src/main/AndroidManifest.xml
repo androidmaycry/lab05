@@ -28,8 +28,9 @@
         <activity android:name=".FragmentManager" />
         <activity android:name=".ProfileManagment.EditProfile" />
         <activity android:name=".ProfileManagment.EditPassword"/>
+        <activity android:name=".MainActivity" />
         <activity
-            android:name=".MainActivity"
+            android:name=".SplashActivity"
             android:label="APPetit riders">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
