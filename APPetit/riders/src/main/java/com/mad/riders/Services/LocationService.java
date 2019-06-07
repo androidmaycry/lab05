@@ -1,4 +1,4 @@
-package com.mad.riders.services;
+package com.mad.riders.Services;
 
 
 import android.Manifest;

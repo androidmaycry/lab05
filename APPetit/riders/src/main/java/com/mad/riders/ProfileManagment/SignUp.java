@@ -1,4 +1,4 @@
-package com.mad.riders.Edit;
+package com.mad.riders.ProfileManagment;
 
 import static com.mad.mylibrary.SharedClass.*;
 
@@ -11,7 +11,9 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.icu.text.SimpleDateFormat;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -33,6 +35,7 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -48,7 +51,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class EditProfile extends AppCompatActivity {
+public class SignUp extends AppCompatActivity {
+    private static final String MyPREF = "User_Data";
+    private static final String CheckPREF = "First Run";
+    private static final String Name = "keyName";
+    private static final String Address = "keyAddress";
+    private static final String Description = "keyDescription";
+    private static final String Email = "keyEmail";
+    private static final String Phone = "keyPhone";
+    private static final String Photo = "keyPhoto";
+    private static final String FirstRun = "keyRun";
+    private static final String DialogOpen ="keyDialog";
 
     private static final int PERMISSION_GALLERY_REQUEST = 1;
     private boolean dialog_open = false;
@@ -58,6 +71,8 @@ public class EditProfile extends AppCompatActivity {
     private String mail;
     private String phone;
     private String currentPhotoPath;
+    private String psw;
+    private String psw_confirm;
 
     private String error_msg;
     private Uri url;
@@ -74,7 +89,7 @@ public class EditProfile extends AppCompatActivity {
 
         database = FirebaseDatabase.getInstance();
 
-        setContentView(R.layout.fragment_edit_profile);
+        setContentView(R.layout.activity_edit_profile);
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
 
@@ -84,7 +99,21 @@ public class EditProfile extends AppCompatActivity {
         Button confirm_reg = findViewById(R.id.confirm_registration);
         confirm_reg.setOnClickListener(e -> {
             if(checkFields()){
-                uploadImage(ROOT_UID);
+                auth.createUserWithEmailAndPassword(mail,psw).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d("SIGNIN", "createUserWithEmail:success");
+                            ROOT_UID = auth.getUid();
+                            uploadImage(ROOT_UID);
+                        }
+                        else {
+                            // If sign in fails, display a message to the user.
+                            Log.d("ERROR", "createUserWithEmail:failure", task.getException());
+                        }
+                    }
+                });
             }
             else{
                 Toast.makeText(getApplicationContext(), error_msg, Toast.LENGTH_LONG).show();
@@ -146,8 +175,8 @@ public class EditProfile extends AppCompatActivity {
     }
 
     private void editPhoto(){
-        AlertDialog alertDialog = new AlertDialog.Builder(EditProfile.this, R.style.AlertDialogStyle).create();
-        LayoutInflater factory = LayoutInflater.from(EditProfile.this);
+        AlertDialog alertDialog = new AlertDialog.Builder(SignUp.this, R.style.AlertDialogStyle).create();
+        LayoutInflater factory = LayoutInflater.from(SignUp.this);
         final View view = factory.inflate(R.layout.custom_dialog, null);
 
         dialog_open = true;
@@ -221,6 +250,8 @@ public class EditProfile extends AppCompatActivity {
         surname = ((EditText)findViewById(R.id.surname)).getText().toString();
         mail = ((EditText)findViewById(R.id.mail)).getText().toString();
         phone = ((EditText)findViewById(R.id.phone2)).getText().toString();
+        psw = ((EditText)findViewById(R.id.psw)).getText().toString();
+        psw_confirm = ((EditText)findViewById(R.id.psw_confirm)).getText().toString();
 
         if(name.trim().length() == 0){
             error_msg = "Insert name";
@@ -242,6 +273,12 @@ public class EditProfile extends AppCompatActivity {
             return false;
         }
 
+        if(psw.compareTo(psw_confirm) != 0){
+            error_msg = "Passwords don't match";
+            return false;
+        }
+
+
         return true;
     }
 
@@ -249,10 +286,45 @@ public class EditProfile extends AppCompatActivity {
         File imgFile = new File(photoPath);
 
         Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+        myBitmap = adjustPhoto(myBitmap, photoPath);
+
         ((ImageView)findViewById(R.id.img_profile)).setImageBitmap(myBitmap);
     }
 
+    private Bitmap adjustPhoto(Bitmap bitmap, String photoPath) throws IOException {
+        ExifInterface ei = new ExifInterface(photoPath);
+        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                ExifInterface.ORIENTATION_UNDEFINED);
 
+        Bitmap rotatedBitmap = null;
+        switch(orientation) {
+
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                rotatedBitmap = rotateImage(bitmap, 90);
+                break;
+
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                rotatedBitmap = rotateImage(bitmap, 180);
+                break;
+
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                rotatedBitmap = rotateImage(bitmap, 270);
+                break;
+
+            case ExifInterface.ORIENTATION_NORMAL:
+            default:
+                rotatedBitmap = bitmap;
+        }
+
+        return rotatedBitmap;
+    }
+
+    private static Bitmap rotateImage(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
+                matrix, true);
+    }
 
     private File createImageFile() throws IOException {
         // Create an image file name
@@ -314,10 +386,23 @@ public class EditProfile extends AppCompatActivity {
         if((requestCode == 1 || requestCode == 2) && resultCode == RESULT_OK){
             File imgFile = new File(currentPhotoPath);
             Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+            try {
+                myBitmap = adjustPhoto(myBitmap, currentPhotoPath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             ((ImageView)findViewById(R.id.img_profile)).setImageBitmap(myBitmap);
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        first_check = getSharedPreferences(CheckPREF, 0);
+        SharedPreferences.Editor editor = first_check.edit();
+        editor.putBoolean("firsRun", true);
+        editor.apply();
+        finish();
+    }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState){
@@ -325,9 +410,10 @@ public class EditProfile extends AppCompatActivity {
 
         savedInstanceState.putString(Name, ((EditText)findViewById(R.id.name)).getText().toString());
         savedInstanceState.putString(Address, ((EditText)findViewById(R.id.surname)).getText().toString());
-        savedInstanceState.putString(Mail, ((EditText)findViewById(R.id.mail)).getText().toString());
+        savedInstanceState.putString(Email, ((EditText)findViewById(R.id.mail)).getText().toString());
         savedInstanceState.putString(Phone, ((EditText)findViewById(R.id.phone2)).getText().toString());
         savedInstanceState.putString(Photo, currentPhotoPath);
+        savedInstanceState.putBoolean(DialogOpen, dialog_open);
     }
 
     @Override
@@ -336,7 +422,7 @@ public class EditProfile extends AppCompatActivity {
 
         ((EditText)findViewById(R.id.name)).setText(savedInstanceState.getString(Name));
         ((EditText)findViewById(R.id.surname)).setText(savedInstanceState.getString(Address));
-        ((EditText)findViewById(R.id.mail)).setText(savedInstanceState.getString(Mail));
+        ((EditText)findViewById(R.id.mail)).setText(savedInstanceState.getString(Email));
         ((EditText)findViewById(R.id.phone2)).setText(savedInstanceState.getString(Phone));
         currentPhotoPath = savedInstanceState.getString(Photo);
         if(currentPhotoPath != null){
@@ -347,5 +433,7 @@ public class EditProfile extends AppCompatActivity {
             }
         }
 
+        if(savedInstanceState.getBoolean(DialogOpen))
+            editPhoto();
     }
 }

@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 import com.facebook.CallbackManager;
 import com.google.firebase.auth.FirebaseAuth;
-import com.mad.riders.Edit.SignUp;
+import com.mad.riders.ProfileManagment.SignUp;
 
 public class MainActivity extends AppCompatActivity {
 

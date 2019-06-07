@@ -1,4 +1,4 @@
-package com.mad.riders;
+package com.mad.riders.NavigationFragments;
 
 import static com.mad.mylibrary.SharedClass.*;
 import android.content.Context;
@@ -26,8 +26,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.mad.mylibrary.User;
-import com.mad.riders.Edit.EditPassword;
-import com.mad.riders.Edit.EditProfile;
+import com.mad.riders.ProfileManagment.EditPassword;
+import com.mad.riders.ProfileManagment.EditProfile;
+import com.mad.riders.MainActivity;
+import com.mad.riders.R;
 
 import java.util.Objects;
 

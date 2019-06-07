@@ -24,10 +24,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Edit.SignUp"></activity>
+        <activity android:name=".ProfileManagment.SignUp"></activity>
         <activity android:name=".FragmentManager" />
-        <activity android:name=".Edit.EditProfile" />
-        <activity android:name=".Edit.EditPassword"/>
+        <activity android:name=".ProfileManagment.EditProfile" />
+        <activity android:name=".ProfileManagment.EditPassword"/>
         <activity
             android:name=".MainActivity"
             android:label="APPetit riders">
@@ -60,7 +60,7 @@
             android:name="org.apache.http.legacy"
             android:required="false" />
 
-        <service android:name=".services.LocationService"
+        <service android:name=".Services.LocationService"
             android:stopWithTask="true"/>
 
     </application>

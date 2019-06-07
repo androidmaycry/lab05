@@ -1,4 +1,4 @@
-package com.mad.riders.Edit;
+package com.mad.riders.ProfileManagment;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;

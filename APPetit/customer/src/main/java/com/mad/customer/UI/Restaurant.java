@@ -272,7 +272,6 @@ public class Restaurant extends Fragment {
             }
             else {
                 menu.getItem(1).setIcon(ContextCompat.getDrawable(getContext(),R.drawable.heart_white));
-                heart.setVisible(true);
                 options =
                         new FirebaseRecyclerOptions.Builder<Restaurateur>()
                                 .setQuery(FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO),
