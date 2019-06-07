@@ -24,6 +24,7 @@ import android.icu.text.SimpleDateFormat;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -67,7 +68,7 @@ public class SignUp extends AppCompatActivity {
     private String error_msg;
 
     private FirebaseDatabase database;
-    private Button addressButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,8 +85,7 @@ public class SignUp extends AppCompatActivity {
         // Set the fields to specify which types of place data to return.
         List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS);
 
-        addressButton = findViewById(R.id.button_address);
-        addressButton.setOnClickListener(l-> {
+        findViewById(R.id.address).setOnClickListener(l-> {
 
             Intent intent = new Autocomplete.IntentBuilder(
                     AutocompleteActivityMode.FULLSCREEN, fields)
@@ -238,7 +238,7 @@ public class SignUp extends AppCompatActivity {
         mail = ((EditText)findViewById(R.id.mail)).getText().toString();
         phone = ((EditText)findViewById(R.id.phone)).getText().toString();
         psw = ((EditText)findViewById(R.id.psw)).getText().toString();
-        address = ((Button)findViewById(R.id.button_address)).getText().toString();
+        address = ((EditText)findViewById(R.id.address)).getText().toString();
 
         if(name.trim().length() == 0){
             error_msg = "Fill name";
@@ -328,7 +328,8 @@ public class SignUp extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 Place place = Autocomplete.getPlaceFromIntent(data);
 
-                addressButton.setText(place.getAddress());
+                EditText address_text = findViewById(R.id.address);
+                address_text.setText(place.getAddress());
 
                 if(currentPhotoPath != null) {
                     Glide.with(Objects.requireNonNull(this))

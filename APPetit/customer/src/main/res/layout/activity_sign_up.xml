@@ -4,6 +4,7 @@
     android:id="@+id/myScrollView1"
     android:layout_width="fill_parent" android:layout_height="fill_parent"
     xmlns:android="http://schemas.android.com/apk/res/android" >
+
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -15,7 +16,7 @@
             android:layout_height="42dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="24dp"
-            android:src="@drawable/ic_restaurant_menu"
+            android:src="@drawable/ic_surname"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/imageViewName" />
 
@@ -54,7 +55,7 @@
             android:layout_width="42dp"
             android:layout_height="42dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
             android:src="@drawable/address"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/imageViewCousine" />
@@ -64,7 +65,7 @@
             android:layout_width="42dp"
             android:layout_height="42dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="42dp"
+            android:layout_marginTop="32dp"
             android:src="@drawable/name"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/imageViewLock" />
@@ -103,12 +104,13 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
             android:layout_marginEnd="44dp"
             android:ems="10"
             android:hint="Surname"
             android:inputType="textMultiLine|textCapSentences"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/imageViewCousine"
             app:layout_constraintTop_toBottomOf="@+id/name" />
 
@@ -117,7 +119,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="37dp"
+            android:layout_marginTop="32dp"
             android:layout_marginEnd="44dp"
             android:ems="10"
             android:hint="Name"
@@ -132,7 +134,7 @@
             android:layout_width="254dp"
             android:layout_height="46dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="24dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
 
@@ -173,50 +175,35 @@
             app:layout_constraintVertical_bias="1.0"
             app:srcCompat="@drawable/ic_add_circle_black_24dp" />
 
-        <Button
-            android:id="@+id/button_address"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="26dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginEnd="44dp"
-            android:background="@android:color/transparent"
-            android:text="Restaurant address"
-            android:textAlignment="textStart"
-            android:textAllCaps="false"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="17sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/imageViewAddr"
-            app:layout_constraintTop_toBottomOf="@+id/surname" />
-
-        <View
-            android:id="@+id/view4"
-            android:layout_width="0dp"
-            android:layout_height="2dp"
-            android:layout_marginStart="84dp"
-            android:layout_marginTop="344dp"
-            android:layout_marginEnd="44dp"
-            android:background="@android:color/darker_gray"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/img_profile" />
-
         <EditText
             android:id="@+id/phone"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
             android:layout_marginEnd="44dp"
             android:ems="10"
             android:hint="es: 3341234567"
             android:inputType="phone"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/imageViewphone"
-            app:layout_constraintTop_toTopOf="@+id/view4" />
+            app:layout_constraintTop_toBottomOf="@+id/address" />
+
+        <EditText
+            android:id="@+id/address"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="44dp"
+            android:ems="10"
+            android:hint="Address"
+            android:inputType="none"
+            android:focusable="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/imageViewAddr"
+            app:layout_constraintTop_toBottomOf="@+id/surname" />
 
 
     </android.support.constraint.ConstraintLayout>
