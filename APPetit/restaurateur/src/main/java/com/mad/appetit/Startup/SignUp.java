@@ -22,6 +22,7 @@ import static com.mad.mylibrary.SharedClass.PERMISSION_GALLERY_REQUEST;
 import static com.mad.mylibrary.SharedClass.Photo;
 import static com.mad.mylibrary.SharedClass.RESTAURATEUR_INFO;
 import static com.mad.mylibrary.SharedClass.ROOT_UID;
+import static com.mad.mylibrary.SharedClass.SIGNUP;
 import static com.mad.mylibrary.SharedClass.TimeClose;
 import static com.mad.mylibrary.SharedClass.TimeOpen;
 
@@ -476,7 +477,7 @@ public class SignUp extends AppCompatActivity {
                     progressDialog.dismiss();
 
                     Intent i = new Intent();
-                    setResult(1, i);
+                    setResult(SIGNUP, i);
                     finish();
                 }
             });
@@ -496,7 +497,7 @@ public class SignUp extends AppCompatActivity {
             progressDialog.dismiss();
 
             Intent i = new Intent();
-            setResult(1, i);
+            setResult(SIGNUP, i);
             finish();
         }
     }

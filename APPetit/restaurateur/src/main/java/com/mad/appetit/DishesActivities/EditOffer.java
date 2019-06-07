@@ -413,6 +413,12 @@ public class EditOffer extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        //TODO alertdialog
+        super.onBackPressed();
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
 
