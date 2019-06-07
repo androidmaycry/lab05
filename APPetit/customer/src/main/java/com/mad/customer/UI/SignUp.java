@@ -209,7 +209,7 @@ public class SignUp extends AppCompatActivity {
 
             if (photoFile != null) {
                 Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.mad.costumer.fileprovider",
+                        "com.mad.customer.fileprovider",
                         photoFile);
 
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
