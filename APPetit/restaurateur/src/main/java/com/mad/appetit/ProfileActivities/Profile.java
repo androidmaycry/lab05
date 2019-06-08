@@ -44,7 +44,7 @@ public class Profile extends Fragment {
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference();
         Query query = myRef.child(RESTAURATEUR_INFO + "/" + ROOT_UID).child("info");
 
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
+        query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){

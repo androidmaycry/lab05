@@ -214,6 +214,7 @@ public class PagerAdapterProfile extends Fragment {
 
             case R.id.logout:
                 FirebaseAuth.getInstance().signOut();
+                ROOT_UID = "";
 
                 Intent mainActivity = new Intent(getContext(), MainActivity.class);
                 mainActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

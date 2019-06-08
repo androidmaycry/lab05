@@ -72,7 +72,7 @@ public class DailyOffer extends Fragment {
     private FirebaseRecyclerAdapter<DishItem, ViewHolderDailyOffer> mAdapter;
     private OnFragmentInteractionListener mListener;
 
-    private static FirebaseRecyclerOptions<DishItem> options =
+    private FirebaseRecyclerOptions<DishItem> options =
             new FirebaseRecyclerOptions.Builder<DishItem>()
                     .setQuery(FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO + "/" +
                             ROOT_UID + "/" + DISHES_PATH),
@@ -109,9 +109,7 @@ public class DailyOffer extends Fragment {
                         .inflate(R.layout.dailyoffer_listview, parent, false);
 
                 view.findViewById(R.id.delete_offer).setOnClickListener(e -> {
-                    String name = ((TextView)view.findViewById(R.id.dish_name)).getText().toString();
-
-                    deleteDish(name);
+                    deleteDish(((TextView)view.findViewById(R.id.dish_name)).getText().toString());
                 });
 
                 view.findViewById(R.id.edit_offer).setOnClickListener(h ->

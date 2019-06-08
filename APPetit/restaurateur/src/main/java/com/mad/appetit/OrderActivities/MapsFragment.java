@@ -9,8 +9,6 @@ import com.mad.mylibrary.OrderItem;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -77,6 +75,14 @@ class Position {
         this.latitude = latitude;
         this.longitude = longitude;
     }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
 }
 
 class Haversine {
@@ -109,16 +115,16 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap mMap;
     private boolean mLocationPermissionGranted = true;
     private static final int DEFAULT_ZOOM = 15;
+    private FusedLocationProviderClient mFusedLocationProviderClient;
     private Location mLastKnownLocation;
     private PlaceDetectionClient mPlaceDetectionClient;
-    private FusedLocationProviderClient mFusedLocationProviderClient;
-    //default location
-    private final LatLng mDefaultLocation = new LatLng(-33.8523341, 151.2106085);
+    private final LatLng mDefaultLocation = new LatLng(-33.8523341, 151.2106085); //default location
 
     private double longitude, latitude;
-    private Query queryRestPos, queryRiderPos;
-    ValueEventListener restPosList, riderPosList;
+    private Query queryRiderPos;
+    private ValueEventListener riderPosListener;
 
+    private String restaurantName;
     private HashMap<String, Position> posMap;
     private HashMap<String, String> riderName;
     private TreeMap<Double, String> distanceMap;
@@ -178,26 +184,64 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         mMap = googleMap;
 
         updateLocationUI();
-        getDeviceLocation();
 
-        queryRestPos = FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO +"/"+ROOT_UID).child("info_pos");
-        queryRestPos.addValueEventListener(restPosList = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    latitude = dataSnapshot.getValue(Position.class).latitude;
-                    longitude = dataSnapshot.getValue(Position.class).longitude;
-                }
+        try{
+            if(mLocationPermissionGranted){
+                Task locationResult = mFusedLocationProviderClient.getLastLocation();
+                locationResult.addOnCompleteListener(this.getActivity(), task -> {
+                    if(task.isSuccessful()) {
+                        // Set the map's camera position to the current location of the device.
+                        mLastKnownLocation = (Location) task.getResult();
+
+                        Query getRestaurantInfo = FirebaseDatabase.getInstance().getReference()
+                                .child(RESTAURATEUR_INFO + "/" + ROOT_UID);
+                        getRestaurantInfo.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                if(dataSnapshot.exists()){
+                                    Position position = dataSnapshot.child("info_pos").getValue(Position.class);
+                                    restaurantName = dataSnapshot.child("info").child("name").getValue(String.class);
+
+                                    latitude = position.getLatitude();
+                                    longitude = position.getLongitude();
+
+                                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                                            new LatLng(latitude, longitude), DEFAULT_ZOOM));
+
+                                    mMap.addCircle(new CircleOptions()
+                                            .center(new LatLng(latitude, longitude))
+                                            .radius(10000)
+                                            .strokeColor(0xFFBC7362)
+                                            .fillColor(0x32FFC8C8));
+
+                                    setRidersOnMaps();
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                                Log.w("MAPS FRAGMENT", "Failed to read value.", databaseError.toException());
+                            }
+                        });
+
+                    }
+                    else {
+                        Log.d("TAG", "Current location is null. Using defaults.");
+                        Log.e("TAG","Exception: %s", task.getException());
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
+                        mMap.getUiSettings().setMyLocationButtonEnabled(false);
+                    }
+                });
             }
+        }
+        catch(SecurityException e){
+            Log.e("Exception: %s", e.getMessage());
+        }
+    }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
+    private void setRidersOnMaps(){
         queryRiderPos = FirebaseDatabase.getInstance().getReference(RIDERS_PATH);
-        queryRiderPos.addValueEventListener(riderPosList = new ValueEventListener() {
+        queryRiderPos.addValueEventListener(riderPosListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
@@ -234,7 +278,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                                     Marker m = mMap.addMarker(new MarkerOptions().position(new LatLng(posMap.get(entry.getValue()).latitude, posMap.get(entry.getValue()).longitude))
                                             .title(riderName.get(entry.getValue()))
                                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.nearest_icon))
-                                            //.icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("rider_icon_maps", 130, 130)))
                                             .snippet(new DecimalFormat("#.##").format(entry.getKey()) + " km"));
                                     m.setTag(entry.getValue());
                                     markerMap.put(entry.getValue(), m);
@@ -264,7 +307,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                         }
 
                         mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude))
-                            .title("My Restaurant"));
+                                .title(restaurantName));
 
                         mMap.setOnInfoWindowClickListener(marker ->
                                 selectRider(marker.getTag().toString(),
@@ -279,12 +322,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                Log.w("MAPS FRAGMENT", "Failed to read value.", databaseError.toException());
             }
         });
     }
 
-    public void selectRider(String riderId, String orderId, String customerId) {
+    private void selectRider(String riderId, String orderId, String customerId) {
         AlertDialog reservationDialog = new AlertDialog.Builder(this.getContext()).create();
         LayoutInflater inflater = LayoutInflater.from(this.getContext());
         final View view = inflater.inflate(R.layout.reservation_dialog, null);
@@ -362,7 +405,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
                                         @Override
                                         public void onCancelled(@NonNull DatabaseError databaseError) {
-                                            Log.w("RESERVATION", "Failed to read value.", databaseError.toException());
+                                            Log.w("MAPS FRAGMENT", "Failed to read value.", databaseError.toException());
                                         }
                                     });
                                 }
@@ -370,7 +413,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
                             @Override
                             public void onCancelled(@NonNull DatabaseError databaseError) {
-                                Log.w("RESERVATION", "Failed to read value.", databaseError.toException());
+                                Log.w("MAPS FRAGMENT", "Failed to read value.", databaseError.toException());
                             }
                         });
                     }
@@ -378,7 +421,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
                 @Override
                 public void onCancelled(DatabaseError error) {
-                    Log.w("RESERVATION", "Failed to read value.", error.toException());
+                    Log.w("MAPS FRAGMENT", "Failed to read value.", error.toException());
                 }
             });
         });
@@ -389,11 +432,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         reservationDialog.setTitle("Are you sure to select this rider?\n");
 
         reservationDialog.show();
-    }
-
-    public Bitmap resizeBitmap(String drawableName, int width, int height) {
-        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(), getResources().getIdentifier(drawableName, "drawable", getActivity().getPackageName()));
-        return Bitmap.createScaledBitmap(imageBitmap, width, height, false);
     }
 
     private void updateLocationUI() {
@@ -412,62 +450,16 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
     }
 
-    private void getDeviceLocation() {
-        /*
-         * Get the best and most recent location of the device, which may be null in rare
-         * cases when a location is not available.
-         */
-        try {
-            if (mLocationPermissionGranted) {
-                Task locationResult = mFusedLocationProviderClient.getLastLocation();
-                locationResult.addOnCompleteListener(this.getActivity(), task -> {
-                    if (task.isSuccessful()) {
-                        // Set the map's camera position to the current location of the device.
-                        mLastKnownLocation = (Location) task.getResult();
-
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                                new LatLng(mLastKnownLocation.getLatitude(),
-                                        mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
-
-                        mMap.addCircle(new CircleOptions()
-                                .center(new LatLng(mLastKnownLocation.getLatitude(),
-                                        mLastKnownLocation.getLongitude()))
-                                .radius(10000)
-                                .strokeColor(0xFFBC7362)
-                                .fillColor(0x32FFC8C8));
-                        /*HashMap<String, Object> mapsMap = new HashMap<>();
-                        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("maps");
-                        mapsMap.put("pos02", new LatLng(mLastKnownLocation.getLongitude(), mLastKnownLocation.getLatitude()));
-                        ref.updateChildren(mapsMap);*/
-
-                    } else {
-                        Log.d("TAG", "Current location is null. Using defaults.");
-                        Log.e("TAG","Exception: %s", task.getException());
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
-                        mMap.getUiSettings().setMyLocationButtonEnabled(false);
-                    }
-                });
-            }
-        } catch(SecurityException e)  {
-            Log.e("Exception: %s", e.getMessage());
-        }
-    }
-
     @Override
     public void onPause() {
-        queryRestPos.removeEventListener(restPosList);
-        queryRiderPos.removeEventListener(riderPosList);
+        queryRiderPos.removeEventListener(riderPosListener);
         super.onPause();
     }
 
     @Override
     public void onStop() {
+        queryRiderPos.removeEventListener(riderPosListener);
         super.onStop();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
     }
 
     // TODO: Rename method, update argument and hook method into UI event

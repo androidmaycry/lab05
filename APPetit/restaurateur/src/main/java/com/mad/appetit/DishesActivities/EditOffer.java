@@ -52,7 +52,6 @@ public class EditOffer extends AppCompatActivity {
     private int quantValue = -1;
     private ImageView imageview;
 
-    private boolean camera_open = false, price_open = false, quant_open = false;
     private boolean editing = false, photoChanged = false;
 
     private Button priceButton, quantButton;
@@ -183,8 +182,6 @@ public class EditOffer extends AppCompatActivity {
         LayoutInflater inflater = LayoutInflater.from(EditOffer.this);
         final View view = inflater.inflate(R.layout.price_dialog, null);
 
-        price_open = true;
-
         NumberPicker euro = view.findViewById(R.id.euro_picker);
         NumberPicker cent = view.findViewById(R.id.cent_picker);
 
@@ -192,25 +189,29 @@ public class EditOffer extends AppCompatActivity {
 
         priceDialog.setButton(AlertDialog.BUTTON_POSITIVE,"OK", (dialog, which) -> {
             float centValue = cent.getValue();
-            price_open = false;
             priceValue = euro.getValue() + (centValue/100);
             priceButton.setText(Float.toString(priceValue));
         });
         priceDialog.setButton(DialogInterface.BUTTON_NEGATIVE,"CANCEL", (dialog, which) -> {
-            price_open = false;
             dialog.dismiss();
         });
 
         euro.setMinValue(0);
         euro.setMaxValue(9999);
-        euro.setValue(0);
 
         String[] cents = setCentsValue();
-
         cent.setDisplayedValues(cents);
         cent.setMinValue(0);
         cent.setMaxValue(99);
-        cent.setValue(0);
+
+        if(priceValue != -1){
+            euro.setValue((int) priceValue);
+            cent.setValue(Integer.parseInt(String.valueOf(priceValue).split("\\.")[1]));
+        }
+        else{
+            euro.setValue(0);
+            cent.setValue(0);
+        }
 
         priceDialog.show();
     }
@@ -220,25 +221,24 @@ public class EditOffer extends AppCompatActivity {
         LayoutInflater inflater = LayoutInflater.from(EditOffer.this);
         final View view = inflater.inflate(R.layout.quantity_dialog, null);
 
-        quant_open = true;
-
         NumberPicker quantity = view.findViewById(R.id.quant_picker);
 
         quantDialog.setView(view);
 
         quantDialog.setButton(AlertDialog.BUTTON_POSITIVE,"OK", (dialog, which) -> {
-            quant_open = false;
             quantValue = quantity.getValue();
             quantButton.setText(Integer.toString(quantValue));
         });
         quantDialog.setButton(DialogInterface.BUTTON_NEGATIVE,"CANCEL", (dialog, which) -> {
-            quant_open = false;
             dialog.dismiss();
         });
 
         quantity.setMinValue(1);
         quantity.setMaxValue(999);
-        quantity.setValue(1);
+        if(quantValue != -1)
+            quantity.setValue(quantValue);
+        else
+            quantity.setValue(1);
 
         quantDialog.show();
     }
@@ -248,33 +248,26 @@ public class EditOffer extends AppCompatActivity {
         LayoutInflater factory = LayoutInflater.from(EditOffer.this);
         final View view = factory.inflate(R.layout.custom_dialog, null);
 
-        camera_open = true;
-
         alertDialog.setOnCancelListener(dialog -> {
-            camera_open = false;
             alertDialog.dismiss();
         });
 
         view.findViewById(R.id.camera).setOnClickListener( c -> {
             cameraIntent();
-            camera_open = false;
             alertDialog.dismiss();
         });
         view.findViewById(R.id.gallery).setOnClickListener( g -> {
             galleryIntent();
-            camera_open = false;
             alertDialog.dismiss();
         });
 
         alertDialog.setView(view);
         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Camera", (dialog, which) -> {
             cameraIntent();
-            camera_open = false;
             dialog.dismiss();
         });
         alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Gallery", (dialog, which) -> {
             galleryIntent();
-            camera_open = false;
             dialog.dismiss();
         });
         alertDialog.show();
@@ -287,7 +280,7 @@ public class EditOffer extends AppCompatActivity {
 
             if (photoFile != null) {
                 Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.example.android.fileprovider",
+                        "com.mad.appetit",
                         photoFile);
 
                 photoChanged = true;
@@ -414,50 +407,16 @@ public class EditOffer extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        //TODO alertdialog
-        super.onBackPressed();
-    }
+        AlertDialog dialog = new AlertDialog.Builder(EditOffer.this).create();
+        LayoutInflater inflater = LayoutInflater.from(EditOffer.this);
+        final View view = inflater.inflate(R.layout.reservation_dialog, null);
 
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
+        view.findViewById(R.id.button_confirm).setOnClickListener(e -> super.onBackPressed());
+        view.findViewById(R.id.button_cancel).setOnClickListener(e -> dialog.dismiss());
 
-        savedInstanceState.putString(Name, ((EditText)findViewById(R.id.name)).getText().toString());
-        savedInstanceState.putString(Description, ((EditText)findViewById(R.id.description)).getText().toString());
-        savedInstanceState.putFloat(Price, priceValue);
-        savedInstanceState.putInt(Quantity, quantValue);
-        savedInstanceState.putString(Photo, currentPhotoPath);
-        savedInstanceState.putBoolean(CameraOpen, camera_open);
-        savedInstanceState.putBoolean(PriceOpen, price_open);
-        savedInstanceState.putBoolean(QuantOpen, quant_open);
-    }
+        dialog.setView(view);
+        dialog.setTitle("Are you sure to cancel?");
 
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-
-        ((EditText)findViewById(R.id.name)).setText(savedInstanceState.getString(Name));
-        ((EditText)findViewById(R.id.description)).setText(savedInstanceState.getString(Description));
-
-        priceValue = savedInstanceState.getFloat(Price);
-        if(priceValue != -1)
-            priceButton.setText(Float.toString(priceValue));
-
-        quantValue = savedInstanceState.getInt(Quantity);
-        if(quantValue != -1)
-            quantButton.setText(Integer.toString(quantValue));
-
-        currentPhotoPath = savedInstanceState.getString(Photo);
-        if(currentPhotoPath != null)
-            Glide.with(getApplicationContext()).load(currentPhotoPath).into((ImageView)findViewById(R.id.img_profile));
-
-        if(savedInstanceState.getBoolean(CameraOpen))
-            editPhoto();
-
-        if(savedInstanceState.getBoolean(PriceOpen))
-            setPrice();
-
-        if(savedInstanceState.getBoolean(QuantOpen))
-            setQuantity();
+        dialog.show();
     }
 }

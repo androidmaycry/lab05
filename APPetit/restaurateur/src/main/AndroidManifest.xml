@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.mad.appetit">
 
     <uses-feature
@@ -18,29 +19,36 @@
         android:label="APPetit restaurant"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".Startup.SplashActivity"
-            android:theme="@style/SplashTheme">
+            android:theme="@style/SplashTheme"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name=".Startup.MainActivity"
-            android:windowSoftInputMode="stateHidden|adjustResize">
-        </activity>
+            android:windowSoftInputMode="stateHidden|adjustResize"
+            android:screenOrientation="portrait" />
         <activity android:name=".Startup.SignUp"
             android:windowSoftInputMode="stateHidden|adjustResize"/>
-        <activity android:name=".FragmentManager" />
+        <activity android:name=".FragmentManager"
+            android:screenOrientation="portrait"/>
         <activity android:name=".ProfileActivities.EditProfile"
-            android:windowSoftInputMode="stateHidden|adjustResize"/>
+            android:windowSoftInputMode="stateHidden|adjustResize"
+            android:screenOrientation="portrait"/>
         <activity android:name=".DishesActivities.EditOffer"
-            android:windowSoftInputMode="stateHidden|adjustResize"/>
+            android:windowSoftInputMode="stateHidden|adjustResize"
+            android:screenOrientation="portrait"/>
         <activity android:name=".OrderActivities.MapsActivity"
-            android:windowSoftInputMode="stateHidden|adjustResize"/>
+            android:windowSoftInputMode="stateHidden|adjustResize"
+            android:screenOrientation="portrait"/>
         <activity android:name=".ProfileActivities.EditPassword"
-            android:windowSoftInputMode="stateHidden|adjustResize"/>
+            android:windowSoftInputMode="stateHidden|adjustResize"
+            android:screenOrientation="portrait"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -48,7 +56,7 @@
 
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.mad.appetit.fileprovider"
+            android:authorities="com.mad.appetit"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

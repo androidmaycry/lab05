@@ -15,16 +15,10 @@ import com.google.firebase.storage.StorageReference;
 import com.mad.appetit.R;
 import com.mad.mylibrary.Restaurateur;
 
-import static com.mad.mylibrary.SharedClass.CameraOpen;
-import static com.mad.mylibrary.SharedClass.Description;
-import static com.mad.mylibrary.SharedClass.Name;
 import static com.mad.mylibrary.SharedClass.PERMISSION_GALLERY_REQUEST;
-import static com.mad.mylibrary.SharedClass.Photo;
 import static com.mad.mylibrary.SharedClass.RESTAURATEUR_INFO;
 import static com.mad.mylibrary.SharedClass.ROOT_UID;
 import static com.mad.mylibrary.SharedClass.SIGNUP;
-import static com.mad.mylibrary.SharedClass.TimeClose;
-import static com.mad.mylibrary.SharedClass.TimeOpen;
 
 import android.Manifest;
 import android.app.ProgressDialog;
@@ -36,6 +30,7 @@ import android.icu.text.SimpleDateFormat;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -68,14 +63,10 @@ import java.util.UUID;
 public class SignUp extends AppCompatActivity {
     private String mail, psw, name, addr, descr, phone, errMsg = "", currentPhotoPath = null;
     private String openingTime, closingTime;
-
-    private Button openingTimeButton, closingTimeButton, address;
-
     private double latitude, longitude;
 
-    private boolean camera_open = false;
-    private boolean timeOpen_open = false;
-    private boolean timeClose_open = false;
+    private Button openingTimeButton, closingTimeButton, address;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,14 +101,20 @@ public class SignUp extends AppCompatActivity {
 
         findViewById(R.id.button).setOnClickListener(e -> {
             if(checkFields()){
+                progressDialog = new ProgressDialog(SignUp.this);
+                progressDialog.setTitle("Creating profile.\nOperation may take few minutes...");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+
                 auth.createUserWithEmailAndPassword(mail, psw).addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
+                    if(task.isSuccessful()){
                         ROOT_UID = auth.getUid();
                         storeDatabase();
                     }
                     else {
+                        //Log.w("SIGN IN", "Error: createUserWithEmail:failure", task.getException());
                         Toast.makeText(SignUp.this,"Registration failed. Try again", Toast.LENGTH_LONG).show();
-                        Log.d("SIGN IN", "Error: createUserWithEmail:failure", task.getException());
+                        progressDialog.dismiss();
                     }
                 });
             }
@@ -178,33 +175,26 @@ public class SignUp extends AppCompatActivity {
         LayoutInflater factory = LayoutInflater.from(SignUp.this);
         final View view = factory.inflate(R.layout.custom_dialog, null);
 
-        camera_open = true;
-
         alertDialog.setOnCancelListener(dialog -> {
-            camera_open = false;
             alertDialog.dismiss();
         });
 
         view.findViewById(R.id.camera).setOnClickListener( c -> {
             cameraIntent();
-            camera_open = false;
             alertDialog.dismiss();
         });
         view.findViewById(R.id.gallery).setOnClickListener( g -> {
             galleryIntent();
-            camera_open = false;
             alertDialog.dismiss();
         });
 
         alertDialog.setView(view);
         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Camera", (dialog, which) -> {
             cameraIntent();
-            camera_open = false;
             dialog.dismiss();
         });
         alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Gallery", (dialog, which) -> {
             galleryIntent();
-            camera_open = false;
             dialog.dismiss();
         });
         alertDialog.show();
@@ -217,7 +207,7 @@ public class SignUp extends AppCompatActivity {
 
             if (photoFile != null) {
                 Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.mad.appetit.fileprovider",
+                        "com.mad.appetit",
                         photoFile);
 
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
@@ -274,15 +264,12 @@ public class SignUp extends AppCompatActivity {
         LayoutInflater inflater = LayoutInflater.from(SignUp.this);
         final View viewOpening = inflater.inflate(R.layout.opening_time_dialog, null);
 
-        timeOpen_open = true;
-
         NumberPicker hour = viewOpening.findViewById(R.id.hour_picker);
         NumberPicker min = viewOpening.findViewById(R.id.min_picker);
 
         openingTimeDialog.setView(viewOpening);
 
         openingTimeDialog.setButton(AlertDialog.BUTTON_POSITIVE,"OK", (dialog, which) -> {
-            timeOpen_open = false;
             int hourValue = hour.getValue();
             int minValue = min.getValue();
 
@@ -298,7 +285,6 @@ public class SignUp extends AppCompatActivity {
             openingTimeButton.setText(openingTime);
         });
         openingTimeDialog.setButton(DialogInterface.BUTTON_NEGATIVE,"CANCEL", (dialog, which) -> {
-            timeOpen_open = false;
             dialog.dismiss();
         });
 
@@ -322,16 +308,12 @@ public class SignUp extends AppCompatActivity {
         LayoutInflater inflater = LayoutInflater.from(SignUp.this);
         final View viewClosing = inflater.inflate(R.layout.closing_time_dialog, null);
 
-        timeClose_open = true;
-
         NumberPicker hour = viewClosing.findViewById(R.id.hour_picker);
         NumberPicker min = viewClosing.findViewById(R.id.min_picker);
 
         closingTimeDialog.setView(viewClosing);
 
         closingTimeDialog.setButton(AlertDialog.BUTTON_POSITIVE,"OK", (dialog, which) -> {
-            timeClose_open = false;
-
             int hourValue = hour.getValue();
             int minValue = min.getValue();
             String hourString = Integer.toString(hourValue), minString = Integer.toString(minValue);
@@ -346,7 +328,6 @@ public class SignUp extends AppCompatActivity {
             closingTimeButton.setText(closingTime);
         });
         closingTimeDialog.setButton(DialogInterface.BUTTON_NEGATIVE,"CANCEL", (dialog, which) -> {
-            timeClose_open = false;
             dialog.dismiss();
         });
 
@@ -441,13 +422,9 @@ public class SignUp extends AppCompatActivity {
     }
 
     public void storeDatabase(){
-        final ProgressDialog progressDialog = new ProgressDialog(this);
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO + "/" + ROOT_UID);
         Map<String, Object> restMap = new HashMap<>();
         Map<String, Object> posInfoMap = new HashMap<>();
-
-        progressDialog.setTitle("Creating profile...");
-        progressDialog.show();
 
         if(currentPhotoPath != null) {
             Uri photoUri = Uri.fromFile(new File(currentPhotoPath));
@@ -456,6 +433,7 @@ public class SignUp extends AppCompatActivity {
 
             ref.putFile(photoUri).continueWithTask(task -> {
                 if (!task.isSuccessful()){
+                    progressDialog.dismiss();
                     throw Objects.requireNonNull(task.getException());
                 }
                 return ref.getDownloadUrl();
@@ -480,6 +458,14 @@ public class SignUp extends AppCompatActivity {
                     setResult(SIGNUP, i);
                     finish();
                 }
+                else {
+                    //Log.w("LOGIN", "signInWithCredential:failure", task.getException());
+                    progressDialog.dismiss();
+                    Snackbar.make(findViewById(R.id.email), "Authentication Failed. Try again.", Snackbar.LENGTH_SHORT).show();
+                }
+            }).addOnFailureListener(e -> {
+                progressDialog.dismiss();
+                Snackbar.make(findViewById(R.id.email), "Authentication Failed. Try again.", Snackbar.LENGTH_SHORT).show();
             });
         }
         else{
@@ -500,47 +486,5 @@ public class SignUp extends AppCompatActivity {
             setResult(SIGNUP, i);
             finish();
         }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
-
-        savedInstanceState.putString(Name, ((EditText)findViewById(R.id.name)).getText().toString());
-        savedInstanceState.putString(Description, ((EditText)findViewById(R.id.description)).getText().toString());
-        savedInstanceState.putString(Photo, currentPhotoPath);
-        savedInstanceState.putBoolean(CameraOpen, camera_open);
-        savedInstanceState.putBoolean(TimeOpen, timeOpen_open);
-        savedInstanceState.putBoolean(TimeClose, timeClose_open);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-
-        ((EditText)findViewById(R.id.name)).setText(savedInstanceState.getString(Name));
-        ((EditText)findViewById(R.id.description)).setText(savedInstanceState.getString(Description));
-
-        currentPhotoPath = savedInstanceState.getString(Photo);
-        if(currentPhotoPath != null) {
-            Glide.with(Objects.requireNonNull(this))
-                    .load(currentPhotoPath)
-                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                    .into((ImageView) findViewById(R.id.img_profile));
-        }
-        else {
-            Glide.with(Objects.requireNonNull(this))
-                    .load(R.drawable.restaurant_home)
-                    .into((ImageView) findViewById(R.id.img_profile));
-        }
-
-        if(savedInstanceState.getBoolean(CameraOpen))
-            editPhoto();
-
-        if(savedInstanceState.getBoolean(TimeOpen))
-            setOpeningTimeDialog();
-
-        if(savedInstanceState.getBoolean(TimeClose))
-            setClosingTimeDialog();
     }
 }

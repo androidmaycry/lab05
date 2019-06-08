@@ -60,7 +60,6 @@ public class EditProfile extends AppCompatActivity {
     private Button openingTimeButton;
     private Button closingTimeButton;
     private boolean photoChanged = false;
-    private boolean camera_open = false;
 
     private double latitude;
     private double longitude;
@@ -168,7 +167,6 @@ public class EditProfile extends AppCompatActivity {
         ((Button)findViewById(R.id.edit_opening_time)).setText(openingTime);
         ((Button)findViewById(R.id.edit_closing_time)).setText(closingTime);
 
-
         if(currentPhotoPath != null) {
             Glide.with(Objects.requireNonNull(this))
                     .load(currentPhotoPath)
@@ -187,33 +185,26 @@ public class EditProfile extends AppCompatActivity {
         LayoutInflater factory = LayoutInflater.from(EditProfile.this);
         final View view = factory.inflate(R.layout.custom_dialog, null);
 
-        camera_open = true;
-
         alertDialog.setOnCancelListener(dialog -> {
-            camera_open = false;
             alertDialog.dismiss();
         });
 
         view.findViewById(R.id.camera).setOnClickListener( c -> {
             cameraIntent();
-            camera_open = false;
             alertDialog.dismiss();
         });
         view.findViewById(R.id.gallery).setOnClickListener( g -> {
             galleryIntent();
-            camera_open = false;
             alertDialog.dismiss();
         });
 
         alertDialog.setView(view);
         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Camera", (dialog, which) -> {
             cameraIntent();
-            camera_open = false;
             dialog.dismiss();
         });
         alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Gallery", (dialog, which) -> {
             galleryIntent();
-            camera_open = false;
             dialog.dismiss();
         });
         alertDialog.show();
@@ -485,44 +476,5 @@ public class EditProfile extends AppCompatActivity {
 
             finish();
         }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState){
-        super.onSaveInstanceState(savedInstanceState);
-
-        savedInstanceState.putString(Name, ((EditText)findViewById(R.id.name)).getText().toString());
-        savedInstanceState.putString(Address, ((Button)findViewById(R.id.button_address2)).getText().toString());
-        savedInstanceState.putString(Description, ((EditText)findViewById(R.id.description)).getText().toString());
-        savedInstanceState.putString(Mail, ((EditText)findViewById(R.id.mail)).getText().toString());
-        savedInstanceState.putString(Phone, ((EditText)findViewById(R.id.time_text)).getText().toString());
-        savedInstanceState.putString(Photo, currentPhotoPath);
-        savedInstanceState.putBoolean(CameraOpen, camera_open);
-    }
-
-    @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-
-        ((EditText)findViewById(R.id.name)).setText(savedInstanceState.getString(Name));
-        ((Button)findViewById(R.id.button_address2)).setText(savedInstanceState.getString(Address));
-        ((EditText)findViewById(R.id.description)).setText(savedInstanceState.getString(Description));
-        ((EditText)findViewById(R.id.mail)).setText(savedInstanceState.getString(Mail));
-        ((EditText)findViewById(R.id.time_text)).setText(savedInstanceState.getString(Phone));
-
-        currentPhotoPath = savedInstanceState.getString(Photo);
-        if(currentPhotoPath != null) {
-            Glide.with(Objects.requireNonNull(this))
-                    .load(currentPhotoPath)
-                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                    .into((ImageView) findViewById(R.id.img_profile));
-        }
-        else {
-            Glide.with(Objects.requireNonNull(this))
-                    .load(R.drawable.restaurant_home)
-                    .into((ImageView) findViewById(R.id.img_profile));
-        }
-        if(savedInstanceState.getBoolean(CameraOpen))
-            editPhoto();
     }
 }

@@ -68,9 +68,9 @@ public class Home extends Fragment {
     private RecyclerView.LayoutManager layoutManager;
     private FirebaseRecyclerAdapter<DishItem, ViewHolderDailyOfferMostFavourite> mAdapter;
 
-    private static Query query = FirebaseDatabase.getInstance().getReference().child(RESTAURATEUR_INFO + "/" +
+    private Query query = FirebaseDatabase.getInstance().getReference().child(RESTAURATEUR_INFO + "/" +
             ROOT_UID + "/" + DISHES_PATH).orderByChild("frequency");
-    private static FirebaseRecyclerOptions<DishItem> options =
+    private FirebaseRecyclerOptions<DishItem> options =
             new FirebaseRecyclerOptions.Builder<DishItem>()
                     .setQuery(query, DishItem.class).build();
 
