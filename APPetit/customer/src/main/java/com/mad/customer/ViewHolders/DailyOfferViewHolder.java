@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.mad.customer.Items.DishItem;
 import com.mad.customer.R;
 
@@ -37,18 +38,7 @@ public class DailyOfferViewHolder extends RecyclerView.ViewHolder{
         this.dishDesc.setText(current.getDesc());
         this.dishPrice.setText(current.getPrice() + " €");
         if (current.getPhotoUri() != null) {
-            try {
-                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-                StrictMode.setThreadPolicy(policy);
-
-                inputStream = new URL(current.getPhotoUri()).openStream();
-                if (inputStream != null)
-                    Glide.with(view.getContext()).load(current.getPhotoUri()).into(dishPhoto);
-                else
-                    Glide.with(view.getContext()).load(R.drawable.hamburger).into(dishPhoto);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Glide.with(view.getContext()).load(current.getPhotoUri()).override(50,50).into(dishPhoto);
         }
     }
 

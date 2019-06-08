@@ -88,8 +88,8 @@ public class OrderViewHolder extends RecyclerView.ViewHolder{
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 name.setText((String)dataSnapshot.child("name").getValue());
-                if(dataSnapshot.child("img").exists()){
-                    Glide.with(itemView).load(dataSnapshot.child("img").getValue()).into(img);
+                if(dataSnapshot.child("photoUri").exists()){
+                    Glide.with(itemView).load(dataSnapshot.child("photoUri").getValue()).into(img);
                 }
             }
 
@@ -177,13 +177,13 @@ public class OrderViewHolder extends RecyclerView.ViewHolder{
                 HashMap<String, Object> star = new HashMap<>();
                 DatabaseReference myRef = FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO + "/" + resKey);
                 if(!dataSnapshot.exists()){
-                    star.put("stars", new StarItem(stars, 1, Integer.MAX_VALUE-stars));
+                    star.put("stars", new StarItem(stars, 1, -stars));
                     myRef.updateChildren(star);
                 }
                 else {
                     int s = ((Long)dataSnapshot.child("tot_stars").getValue()).intValue();
                     int p = ((Long)dataSnapshot.child("tot_review").getValue()).intValue();
-                    star.put("stars", new StarItem(s+stars, p+1, Integer.MAX_VALUE-(s+stars)));
+                    star.put("stars", new StarItem(s+stars, p+1, s-stars));
                     myRef.updateChildren(star);
                 }
             }

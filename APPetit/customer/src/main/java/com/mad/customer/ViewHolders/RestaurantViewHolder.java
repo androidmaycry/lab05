@@ -79,11 +79,16 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder implements Vie
         int open_m = Integer.parseInt(current.getOpeningTime().split(" - ")[0].split(":")[1]);
         int close_h = Integer.parseInt(current.getOpeningTime().split(" - ")[1].split(":")[0]);
         int close_m = Integer.parseInt(current.getOpeningTime().split(" - ")[1].split(":")[1]);
-        if(System.currentTimeMillis()<=getDate(close_h, close_m) & System.currentTimeMillis()>=getDate(open_h, open_m))
-            Log.d("TAG","ristorante aperto");
+        Long opening = getDate(open_h, open_m,0, (long) 0);
+        Long closing = getDate(close_h, close_m,1, opening);
+
+        if(System.currentTimeMillis()<=closing & System.currentTimeMillis()>=opening){
+            ImageView closed = (ImageView) itemView.findViewById(R.id.imageView4);
+            closed.setVisibility(View.GONE);
+        }
         else{
             Log.d("TAG","ristorante chiuso");
-            itemView.setOnClickListener(null);
+            //itemView.setOnClickListener(null);
         }
         this.current = current;
         this.key = key;
@@ -165,14 +170,15 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder implements Vie
         list_favorite = favorite;
         favorite_visible = true;
     }
-    private Long getDate (int hour, int min) {
+    private Long getDate (int hour, int min, int mode, Long prev) {
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, hour);
         cal.set(Calendar.MINUTE, min);
         cal.set(Calendar.SECOND,0);
         cal.set(Calendar.MILLISECOND,0);
         Date date = cal.getTime();
-        if (cal.before(Calendar.getInstance())){
+
+        if (hour>=0 && mode==1 && date.getTime()<prev){
             cal.set(Calendar.DATE,cal.get(Calendar.DATE)+1);
             date = cal.getTime();
         }
