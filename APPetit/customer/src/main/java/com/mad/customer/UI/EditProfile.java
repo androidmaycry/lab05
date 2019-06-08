@@ -68,7 +68,7 @@ public class EditProfile extends AppCompatActivity {
     private String currentPhotoPath;
     private String address;
 
-    private Button addressButton;
+    private EditText addressButton;
 
     private boolean dialog_open = false;
     private boolean photoChanged = false;
@@ -93,12 +93,12 @@ public class EditProfile extends AppCompatActivity {
         // Set the fields to specify which types of place data to return.
         List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS);
 
-        addressButton = findViewById(R.id.cust_edit_address);
+        addressButton = findViewById(R.id.address_modify);
         addressButton.setOnClickListener(l-> {
             Intent intent = new Autocomplete.IntentBuilder(
                     AutocompleteActivityMode.FULLSCREEN, fields)
                     .build(this);
-            startActivityForResult(intent, 2);
+            startActivityForResult(intent, 3);
         });
 
         Button confirm_reg = findViewById(R.id.back_order_button);
@@ -133,7 +133,7 @@ public class EditProfile extends AppCompatActivity {
         currentPhotoPath = user.getPhotoPath();
 
         ((EditText)findViewById(R.id.name)).setText(name);
-        ((Button)findViewById(R.id.cust_edit_address)).setText(address);
+        ((EditText)findViewById(R.id.address_modify)).setText(address);
         ((EditText)findViewById(R.id.mail)).setText(mail);
         ((EditText)findViewById(R.id.phone2)).setText(phone);
         ((EditText)findViewById(R.id.surname)).setText(surname);
@@ -159,7 +159,7 @@ public class EditProfile extends AppCompatActivity {
         surname = ((EditText)findViewById(R.id.surname)).getText().toString();
         mail = ((EditText)findViewById(R.id.mail)).getText().toString();
         phone = ((EditText)findViewById(R.id.phone2)).getText().toString();
-        address = ((Button)findViewById(R.id.cust_edit_address)).getText().toString();
+        address = ((EditText)findViewById(R.id.address_modify)).getText().toString();
 
         if(name.trim().length() == 0){
             error_msg = "Fill name";
@@ -281,7 +281,7 @@ public class EditProfile extends AppCompatActivity {
 
             if (photoFile != null) {
                 Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.mad.customer",
+                        "com.mad.customer.fileprovider",
                         photoFile);
 
                 photoChanged = true;
@@ -368,7 +368,7 @@ public class EditProfile extends AppCompatActivity {
             Glide.with(getApplicationContext()).load(currentPhotoPath).into((ImageView)findViewById(R.id.img_profile));
         }
 
-        if (requestCode == 2) {
+        if (requestCode == 3) {
             if (resultCode == RESULT_OK) {
                 Place place = Autocomplete.getPlaceFromIntent(data);
 
