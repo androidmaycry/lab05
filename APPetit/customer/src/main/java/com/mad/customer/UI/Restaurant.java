@@ -109,6 +109,30 @@ public class Restaurant extends Fragment {
                 for(DataSnapshot d : dataSnapshot.getChildren()){
                     keys_favorite_restaurant.add(d.getKey());
                 }
+
+                //mAdapter.stopListening();
+                if(mAdapter==null) {
+                    mAdapter = new FirebaseRecyclerAdapter<Restaurateur, RestaurantViewHolder>(options) {
+                        @Override
+                        protected void onBindViewHolder(@NonNull RestaurantViewHolder holder, int position, @NonNull Restaurateur model) {
+                            String key = getRef(position).getKey();
+                            holder.setData(model, position, key);
+                        }
+
+                        @NonNull
+                        @Override
+                        public RestaurantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.restaurant_item, parent, false);
+                            RestaurantViewHolder resViewHolder = new RestaurantViewHolder(view, getContext());
+                            resViewHolder.setFavorite(keys_favorite_restaurant);
+
+                            return resViewHolder;
+                        }
+                    };
+                    recyclerView.setAdapter(mAdapter);
+                    mAdapter.startListening();
+                }
+
             }
 
             @Override
@@ -117,23 +141,6 @@ public class Restaurant extends Fragment {
             }
         });
 
-        mAdapter = new FirebaseRecyclerAdapter<Restaurateur, RestaurantViewHolder>(options) {
-            @Override
-            protected void onBindViewHolder(@NonNull RestaurantViewHolder holder, int position, @NonNull Restaurateur model) {
-                String key = getRef(position).getKey();
-                holder.setData(model, position, key);
-            }
-
-            @NonNull
-            @Override
-            public RestaurantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.restaurant_item,parent,false);
-                RestaurantViewHolder resViewHolder = new RestaurantViewHolder(view,getContext());
-                resViewHolder.setFavorite(keys_favorite_restaurant);
-
-                return resViewHolder;
-            }
-        };
 
 
 
@@ -163,7 +170,7 @@ public class Restaurant extends Fragment {
 
                 entryChipGroup.setOnCheckedChangeListener((chipGroup, i) -> {
                     if(chipGroup.getCheckedChipId() == View.NO_ID){
-                        onStop();
+                        mAdapter.stopListening();
                         options =
                                 new FirebaseRecyclerOptions.Builder<Restaurateur>()
                                         .setQuery(FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO),
@@ -214,7 +221,7 @@ public class Restaurant extends Fragment {
                         };
 
                         recyclerView.setAdapter(mAdapter);
-                        onStart();
+                        mAdapter.startListening();
                     }
                 });
             }
@@ -432,7 +439,7 @@ public class Restaurant extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                onStop();
+                mAdapter.stopListening();
                 if(newText.length()==0){
                     entryChipGroup.setVisibility(View.GONE);
                     getActivity().findViewById(R.id.navigation).setVisibility(View.GONE);
@@ -516,7 +523,7 @@ public class Restaurant extends Fragment {
                     }
                 };
                 recyclerView.setAdapter(mAdapter);
-                onStart();
+                mAdapter.startListening();
                 return false;
             }
         });
@@ -544,7 +551,7 @@ public class Restaurant extends Fragment {
     }
 
     private void setFilter(String filter){
-        onStop();
+        mAdapter.stopListening();
 
         FirebaseRecyclerOptions<Restaurateur> options = new FirebaseRecyclerOptions.Builder<Restaurateur>()
                 .setQuery(FirebaseDatabase.getInstance().getReference().child(RESTAURATEUR_INFO), new SnapshotParser<Restaurateur>(){
@@ -568,8 +575,8 @@ public class Restaurant extends Fragment {
                                         snapshot.child("info").child("name").getValue().toString(),
                                         snapshot.child("info").child("addr").getValue().toString(),
                                         snapshot.child("info").child("cuisine").getValue().toString(),
-                                        snapshot.child("info").child("phone").getValue().toString(),
                                         snapshot.child("info").child("openingTime").getValue().toString(),
+                                        snapshot.child("info").child("phone").getValue().toString(),
                                         "null");
                             }
                         }
@@ -598,19 +605,28 @@ public class Restaurant extends Fragment {
             }
         };
         recyclerView.setAdapter(mAdapter);
-        onStart();
+        mAdapter.startListening();
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        mAdapter.startListening();
+        if(mAdapter!=null){
+            mAdapter.startListening();
+        }
+
 
     }
     @Override
     public void onStop() {
         super.onStop();
         mAdapter.stopListening();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
     }
 
     public interface OnFragmentInteractionListener {
