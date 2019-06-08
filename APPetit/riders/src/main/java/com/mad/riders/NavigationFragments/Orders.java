@@ -53,6 +53,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.mad.mylibrary.OrderRiderItem;
 import com.mad.mylibrary.Restaurateur;
+import com.mad.mylibrary.Utilities;
 import com.mad.riders.R;
 
 
@@ -258,7 +259,7 @@ public class Orders extends Fragment implements OnMapReadyCallback {
 
         r_addr.setText(order.getAddrRestaurant());
         c_addr.setText(order.getAddrCustomer());
-        time_text.setText(order.getTime().toString());
+        time_text.setText(Utilities.getDateFromTimestamp(order.getTime()));
         cash_text.setText(order.getTotPrice() + "$");
     }
 

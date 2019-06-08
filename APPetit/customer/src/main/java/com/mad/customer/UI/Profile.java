@@ -2,6 +2,7 @@ package com.mad.customer.UI;
 
 import static com.mad.mylibrary.SharedClass.CUSTOMER_PATH;
 import static com.mad.mylibrary.SharedClass.ROOT_UID;
+import static com.mad.mylibrary.SharedClass.user;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -95,7 +96,7 @@ public class Profile extends Fragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d("ROOT_UID" , ROOT_UID);
-                User user = dataSnapshot.child("customer_info").getValue(User.class);
+                user = dataSnapshot.child("customer_info").getValue(User.class);
 
                 ((TextView) view.findViewById(R.id.name)).setText(user.getName());
                 ((TextView) view.findViewById(R.id.surname)).setText(user.getSurname());
@@ -164,6 +165,35 @@ public class Profile extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference(CUSTOMER_PATH).child(ROOT_UID);
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d("ROOT_UID" , ROOT_UID);
+                user = dataSnapshot.child("customer_info").getValue(User.class);
+
+                ((TextView) view.findViewById(R.id.name)).setText(user.getName());
+                ((TextView) view.findViewById(R.id.surname)).setText(user.getSurname());
+                ((TextView) view.findViewById(R.id.mail)).setText(user.getEmail());
+                ((TextView) view.findViewById(R.id.phone)).setText(user.getPhone());
+                ((TextView) view.findViewById(R.id.address)).setText(user.getAddr());
+
+                if(user.getPhotoPath() != null)
+                    Glide.with(Objects.requireNonNull(view.getContext()))
+                            .load(user.getPhotoPath())
+                            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                            .into((ImageView)view.findViewById(R.id.profile_image));
+                else
+                    Glide.with(Objects.requireNonNull(view.getContext()))
+                            .load(R.drawable.person)
+                            .into((ImageView)view.findViewById(R.id.profile_image));
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                Log.w("MAIN", "Failed to read value.", error.toException());
+            }
+        });
 
     }
 
