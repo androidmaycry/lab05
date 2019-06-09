@@ -88,7 +88,7 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder implements Vie
         }
         else{
             Log.d("TAG","ristorante chiuso");
-            //itemView.setOnClickListener(null);
+            itemView.setOnClickListener(null);
         }
         this.current = current;
         this.key = key;
@@ -178,7 +178,7 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder implements Vie
         cal.set(Calendar.MILLISECOND,0);
         Date date = cal.getTime();
 
-        if (hour>=0 && mode==1 && date.getTime()<prev){
+        if (mode==1 && date.getTime()<prev){
             cal.set(Calendar.DATE,cal.get(Calendar.DATE)+1);
             date = cal.getTime();
         }

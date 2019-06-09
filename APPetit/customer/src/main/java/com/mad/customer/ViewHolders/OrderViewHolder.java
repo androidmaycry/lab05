@@ -59,8 +59,8 @@ public class OrderViewHolder extends RecyclerView.ViewHolder{
         Calendar c = Calendar.getInstance();
         c.setTime(d);
         int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
-        int day = c.get(Calendar.DATE);
+        int month = c.get(Calendar.MONTH)+1;
+        int day = c.get(Calendar.DAY_OF_MONTH);
         String date = day+"/"+month+"/"+year;
         this.date.setText(date);
         //Set delivery

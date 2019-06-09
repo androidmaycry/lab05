@@ -208,7 +208,7 @@ public class NavApp extends AppCompatActivity implements
 
     private void showAlertDialogDelivered (String resKey, String orderKey){
         Query query = FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO).child(resKey).child("info");
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
+        query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 AlertDialog alertDialog = new AlertDialog.Builder(NavApp.this).create();
@@ -217,7 +217,7 @@ public class NavApp extends AppCompatActivity implements
 
                 alertDialog.setView(view);
                 if(dataSnapshot.child("photoUri").exists()){
-                    Glide.with(view).load(dataSnapshot.child("photoUri").getValue()).into((ImageView) view.findViewById(R.id.dialog_rating_icon));
+                    Glide.with(view ).load(dataSnapshot.child("photoUri").getValue()).into((ImageView) view.findViewById(R.id.dialog_rating_icon));
                 }
                 SmileRating smileRating = (SmileRating) view.findViewById(R.id.dialog_rating_rating_bar);
                 //Button confirm pressed
@@ -297,8 +297,8 @@ public class NavApp extends AppCompatActivity implements
 
     @Override
     protected void onResume() {
-        onRefuseOrder();
         super.onResume();
+        onRefuseOrder();
     }
 
     @Override
@@ -313,9 +313,6 @@ public class NavApp extends AppCompatActivity implements
         String mapString = gson.toJson(orderToTrack);
         order_to_listen.edit().putString("HashMap", mapString).apply();
         super.onStop();
-
     }
-
-
 }
 
