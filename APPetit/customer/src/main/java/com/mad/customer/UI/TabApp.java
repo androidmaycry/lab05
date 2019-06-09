@@ -15,6 +15,7 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -83,13 +84,16 @@ public class TabApp extends AppCompatActivity {
                 if(dataSnapshot.exists()) {
                     float s = ((Long)dataSnapshot.child("tot_stars").getValue()).floatValue();
                     float p = ((Long)dataSnapshot.child("tot_review").getValue()).floatValue();
-                    r.setRating(s/p);
-                    number.setText(String.format("%.2f", s/p));
+                    if(p!=0){
+                        r.setRating(s/p);
+                        number.setText(String.format("%.2f", s/p));
+                    }
+                    else{
+                        r.setRating(0);
+                        number.setVisibility(View.GONE);
+                    }
 
-                }
-                else {
-                    r.setRating(0);
-                    number.setVisibility(View.GONE);
+
                 }
             }
 
@@ -147,4 +151,10 @@ public class TabApp extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    /*@Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }*/
 }

@@ -24,14 +24,20 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ProfileManagment.SignUp"></activity>
-        <activity android:name=".FragmentManager" />
-        <activity android:name=".ProfileManagment.EditProfile" />
-        <activity android:name=".ProfileManagment.EditPassword"/>
-        <activity android:name=".MainActivity" />
+        <activity android:name=".ProfileManagment.SignUp"
+            android:screenOrientation="portrait"></activity>
+        <activity android:name=".FragmentManager"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ProfileManagment.EditProfile"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ProfileManagment.EditPassword"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".MainActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".SplashActivity"
-            android:label="APPetit riders">
+            android:label="APPetit riders"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

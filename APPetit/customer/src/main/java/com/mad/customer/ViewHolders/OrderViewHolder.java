@@ -59,8 +59,8 @@ public class OrderViewHolder extends RecyclerView.ViewHolder{
         Calendar c = Calendar.getInstance();
         c.setTime(d);
         int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
-        int day = c.get(Calendar.DATE);
+        int month = c.get(Calendar.MONTH)+1;
+        int day = c.get(Calendar.DAY_OF_MONTH);
         String date = day+"/"+month+"/"+year;
         this.date.setText(date);
         //Set delivery
@@ -88,8 +88,8 @@ public class OrderViewHolder extends RecyclerView.ViewHolder{
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 name.setText((String)dataSnapshot.child("name").getValue());
-                if(dataSnapshot.child("img").exists()){
-                    Glide.with(itemView).load(dataSnapshot.child("img").getValue()).into(img);
+                if(dataSnapshot.child("photoUri").exists()){
+                    Glide.with(itemView).load(dataSnapshot.child("photoUri").getValue()).into(img);
                 }
             }
 
@@ -176,14 +176,10 @@ public class OrderViewHolder extends RecyclerView.ViewHolder{
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 HashMap<String, Object> star = new HashMap<>();
                 DatabaseReference myRef = FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO + "/" + resKey);
-                if(!dataSnapshot.exists()){
-                    star.put("stars", new StarItem(stars, 1, Integer.MAX_VALUE-stars));
-                    myRef.updateChildren(star);
-                }
-                else {
+                if(dataSnapshot.exists()){
                     int s = ((Long)dataSnapshot.child("tot_stars").getValue()).intValue();
                     int p = ((Long)dataSnapshot.child("tot_review").getValue()).intValue();
-                    star.put("stars", new StarItem(s+stars, p+1, Integer.MAX_VALUE-(s+stars)));
+                    star.put("stars", new StarItem(s+stars, p+1, -s-stars));
                     myRef.updateChildren(star);
                 }
             }

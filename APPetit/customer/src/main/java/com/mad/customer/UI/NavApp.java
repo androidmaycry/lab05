@@ -208,7 +208,7 @@ public class NavApp extends AppCompatActivity implements
 
     private void showAlertDialogDelivered (String resKey, String orderKey){
         Query query = FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO).child(resKey).child("info");
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
+        query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 AlertDialog alertDialog = new AlertDialog.Builder(NavApp.this).create();
@@ -265,15 +265,12 @@ public class NavApp extends AppCompatActivity implements
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 HashMap<String, Object> star = new HashMap<>();
                 DatabaseReference myRef = FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO + "/" + resKey);
-                if(!dataSnapshot.exists()){
-                    star.put("stars", new StarItem(stars, 1, Integer.MAX_VALUE-stars));
-                    myRef.updateChildren(star);
-                }
-                else {
+                if(dataSnapshot.exists()){
                     int s = ((Long)dataSnapshot.child("tot_stars").getValue()).intValue();
                     int p = ((Long)dataSnapshot.child("tot_review").getValue()).intValue();
-                    star.put("stars", new StarItem(s+stars, p+1, Integer.MAX_VALUE-(s+stars)));
+                    star.put("stars", new StarItem(s+stars, p+1, -s-stars));
                     myRef.updateChildren(star);
+
                 }
             }
 
@@ -297,8 +294,8 @@ public class NavApp extends AppCompatActivity implements
 
     @Override
     protected void onResume() {
-        onRefuseOrder();
         super.onResume();
+        onRefuseOrder();
     }
 
     @Override
@@ -313,9 +310,6 @@ public class NavApp extends AppCompatActivity implements
         String mapString = gson.toJson(orderToTrack);
         order_to_listen.edit().putString("HashMap", mapString).apply();
         super.onStop();
-
     }
-
-
 }
 

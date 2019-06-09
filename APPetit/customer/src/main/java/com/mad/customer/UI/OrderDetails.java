@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -41,6 +42,8 @@ public class OrderDetails extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order_details);
         item = (OrderCustomerItem) getIntent().getSerializableExtra("order_item");
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         insertItems ();
         insertRecyclerView();
 
@@ -66,8 +69,8 @@ public class OrderDetails extends AppCompatActivity {
                 ((TextView)findViewById(R.id.order_det_name)).setText((String)dataSnapshot.child("name").getValue());
                 ((TextView)findViewById(R.id.order_det_addr)).setText((String)dataSnapshot.child("addr").getValue());
                 ((TextView)findViewById(R.id.order_det_cell)).setText((String)dataSnapshot.child("phone").getValue());
-                if(dataSnapshot.child("img").exists()){
-                    Glide.with(getApplicationContext()).load(dataSnapshot.child("img").getValue()).into((ImageView)findViewById(R.id.order_det_image));
+                if(dataSnapshot.child("photoUri").exists()){
+                    Glide.with(getApplicationContext()).load(dataSnapshot.child("photoUri").getValue()).into((ImageView)findViewById(R.id.order_det_image));
                 }
             }
             @Override
@@ -123,6 +126,15 @@ public class OrderDetails extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setAdapter(mAdapter);
         recyclerView.setLayoutManager(layoutManager);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            this.finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 

@@ -76,12 +76,12 @@ public class OrderingFragment extends Fragment {
                                     @Override
                                     public DishItem parseSnapshot(@NonNull DataSnapshot snapshot) {
                                         DishItem dishItem;
-                                        if(snapshot.child("photoUri").getValue() != null){
+                                        if(snapshot.child("photo").getValue() != null){
                                             dishItem = new DishItem(snapshot.child("name").getValue().toString(),
                                                     snapshot.child("desc").getValue().toString(),
                                                     Float.parseFloat(snapshot.child("price").getValue().toString()),
                                                     Integer.parseInt(snapshot.child("quantity").getValue().toString()),
-                                                    snapshot.child("photoUri").getValue().toString());
+                                                    snapshot.child("photo").getValue().toString());
                                         }
                                         else{
                                             dishItem = new DishItem(snapshot.child("name").getValue().toString(),

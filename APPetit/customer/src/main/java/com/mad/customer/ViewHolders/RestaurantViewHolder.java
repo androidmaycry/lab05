@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RatingBar;
@@ -24,6 +25,8 @@ import com.mad.customer.R;
 import com.mad.customer.UI.TabApp;
 import com.mad.mylibrary.Restaurateur;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.UUID;
@@ -71,6 +74,22 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder implements Vie
         if(!current.getPhotoUri().equals("null")) {
             Glide.with(itemView).load(current.getPhotoUri()).into(this.img);
         }
+        //Opening --> controllo se il ristorante è aperto o chiuso
+        int open_h = Integer.parseInt(current.getOpeningTime().split(" - ")[0].split(":")[0]);
+        int open_m = Integer.parseInt(current.getOpeningTime().split(" - ")[0].split(":")[1]);
+        int close_h = Integer.parseInt(current.getOpeningTime().split(" - ")[1].split(":")[0]);
+        int close_m = Integer.parseInt(current.getOpeningTime().split(" - ")[1].split(":")[1]);
+        Long opening = getDate(open_h, open_m,0, (long) 0);
+        Long closing = getDate(close_h, close_m,1, opening);
+
+        if(System.currentTimeMillis()<=closing & System.currentTimeMillis()>=opening){
+            ImageView closed = (ImageView) itemView.findViewById(R.id.imageView4);
+            closed.setVisibility(View.GONE);
+        }
+        else{
+            Log.d("TAG","ristorante chiuso");
+            itemView.setOnClickListener(null);
+        }
         this.current = current;
         this.key = key;
         Drawable d;
@@ -117,15 +136,16 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder implements Vie
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()) {
-                    float s = ((Long)dataSnapshot.child("tot_stars").getValue()).floatValue();
-                    float p = ((Long)dataSnapshot.child("tot_review").getValue()).floatValue();
-                    ratingBar.setRating(s/p);
-                    star_value.setText(String.format("%.2f", s/p));
-
-                }
-                else {
-                    ratingBar.setRating(0);
-                    star_value.setVisibility(View.GONE);
+                    if(((Long)dataSnapshot.child("tot_review").getValue()).intValue()==0){
+                        ratingBar.setRating(0);
+                        star_value.setVisibility(View.GONE);
+                    }
+                    else {
+                        float s = ((Long) dataSnapshot.child("tot_stars").getValue()).floatValue();
+                        float p = ((Long) dataSnapshot.child("tot_review").getValue()).floatValue();
+                        ratingBar.setRating(s / p);
+                        star_value.setText(String.format("%.2f", s / p));
+                    }
                 }
             }
 
@@ -149,5 +169,19 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder implements Vie
     public void setFavorite(LinkedList<String> favorite){
         list_favorite = favorite;
         favorite_visible = true;
+    }
+    private Long getDate (int hour, int min, int mode, Long prev) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, hour);
+        cal.set(Calendar.MINUTE, min);
+        cal.set(Calendar.SECOND,0);
+        cal.set(Calendar.MILLISECOND,0);
+        Date date = cal.getTime();
+
+        if (mode==1 && date.getTime()<prev){
+            cal.set(Calendar.DATE,cal.get(Calendar.DATE)+1);
+            date = cal.getTime();
+        }
+        return date.getTime();
     }
 }
