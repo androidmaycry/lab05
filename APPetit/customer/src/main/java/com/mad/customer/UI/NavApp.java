@@ -265,15 +265,12 @@ public class NavApp extends AppCompatActivity implements
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 HashMap<String, Object> star = new HashMap<>();
                 DatabaseReference myRef = FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO + "/" + resKey);
-                if(!dataSnapshot.exists()){
-                    star.put("stars", new StarItem(stars, 1, -stars));
-                    myRef.updateChildren(star);
-                }
-                else {
+                if(dataSnapshot.exists()){
                     int s = ((Long)dataSnapshot.child("tot_stars").getValue()).intValue();
                     int p = ((Long)dataSnapshot.child("tot_review").getValue()).intValue();
-                    star.put("stars", new StarItem(s+stars, p+1, s-stars));
+                    star.put("stars", new StarItem(s+stars, p+1, -s-stars));
                     myRef.updateChildren(star);
+
                 }
             }
 

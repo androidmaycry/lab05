@@ -51,7 +51,7 @@ public class Restaurant extends Fragment {
     LinkedList<String> keys_favorite_restaurant;
 
 
-    private static FirebaseRecyclerOptions<Restaurateur> options =
+    private FirebaseRecyclerOptions<Restaurateur> options =
             new FirebaseRecyclerOptions.Builder<Restaurateur>()
                     .setQuery(FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO),
                             new SnapshotParser<Restaurateur>(){
@@ -111,12 +111,14 @@ public class Restaurant extends Fragment {
                 }
 
                 //mAdapter.stopListening();
-                if(mAdapter==null) {
+
                     mAdapter = new FirebaseRecyclerAdapter<Restaurateur, RestaurantViewHolder>(options) {
                         @Override
                         protected void onBindViewHolder(@NonNull RestaurantViewHolder holder, int position, @NonNull Restaurateur model) {
                             String key = getRef(position).getKey();
+                            holder.setIsRecyclable(false);
                             holder.setData(model, position, key);
+
                         }
 
                         @NonNull
@@ -131,7 +133,7 @@ public class Restaurant extends Fragment {
                     };
                     recyclerView.setAdapter(mAdapter);
                     mAdapter.startListening();
-                }
+
 
             }
 
@@ -611,10 +613,9 @@ public class Restaurant extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        if(mAdapter!=null){
+        if(mAdapter!=null) {
             mAdapter.startListening();
         }
-
 
     }
     @Override
