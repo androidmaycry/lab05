@@ -159,7 +159,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginBottom="8dp"
-            android:text="0.0"
             android:textSize="12sp"
             android:textStyle="bold"
             card_view:layout_constraintBottom_toTopOf="@+id/listview_opening"
