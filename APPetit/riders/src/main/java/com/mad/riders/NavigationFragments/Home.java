@@ -86,7 +86,7 @@ public class Home extends Fragment {
                 }
                 Button b = view.findViewById(R.id.button_distance);
 
-                b.setText(Long.toString(distance) + "meters");
+                b.setText(Long.toString(distance/1000) + " KM");
 
             }
 
