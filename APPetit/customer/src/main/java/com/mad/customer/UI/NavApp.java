@@ -217,7 +217,7 @@ public class NavApp extends AppCompatActivity implements
 
                 alertDialog.setView(view);
                 if(dataSnapshot.child("photoUri").exists()){
-                    Glide.with(view ).load(dataSnapshot.child("photoUri").getValue()).into((ImageView) view.findViewById(R.id.dialog_rating_icon));
+                    Glide.with(view).load(dataSnapshot.child("photoUri").getValue()).into((ImageView) view.findViewById(R.id.dialog_rating_icon));
                 }
                 SmileRating smileRating = (SmileRating) view.findViewById(R.id.dialog_rating_rating_bar);
                 //Button confirm pressed

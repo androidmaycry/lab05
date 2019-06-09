@@ -121,7 +121,6 @@ public class TabApp extends AppCompatActivity {
         if(!img.equals("null")) {
             Glide.with(getApplicationContext())
                     .load(img)
-                    .override(50,50)
                     .into(mimg);
         }
     }
