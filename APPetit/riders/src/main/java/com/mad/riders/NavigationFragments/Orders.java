@@ -260,7 +260,7 @@ public class Orders extends Fragment implements OnMapReadyCallback {
         r_addr.setText(order.getAddrRestaurant());
         c_addr.setText(order.getAddrCustomer());
         time_text.setText(Utilities.getDateFromTimestamp(order.getTime()));
-        cash_text.setText(order.getTotPrice() + "0 €");
+        cash_text.setText(order.getTotPrice() + " €");
     }
 
     private void cancelOrderView(View view)
